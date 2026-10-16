@@ -203,7 +203,7 @@ const CDN = 'https://assets.nintendo.com';
 
 export type StoreMedia =
   | { kind: 'video'; src: string; webm: string; poster: string; thumb: string }
-  | { kind: 'image'; src: string; full: string; thumb: string };
+  | { kind: 'image'; src: string; small: string; thumb: string };
 
 export interface StoreDetails {
   media: StoreMedia[];
@@ -235,7 +235,7 @@ function toMedia(g: { publicId: string; resourceType: string }): StoreMedia | nu
     return {
       kind: 'image',
       src: `${CDN}/image/upload/c_fill,w_1280,h_720/f_auto/q_auto/${id}`,
-      full: `${CDN}/image/upload/f_auto/q_auto/${id}`,
+      small: `${CDN}/image/upload/c_fill,w_640,h_360/f_auto/q_auto/${id}`,
       thumb: `${CDN}/image/upload/c_fill,w_320,h_180/f_auto/q_auto/${id}`,
     };
   }

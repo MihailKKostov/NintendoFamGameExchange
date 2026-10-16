@@ -9,6 +9,11 @@ export function StoreGallery({ media, title }: { media: StoreMedia[]; title: str
   const thumbsRef = useRef<HTMLDivElement>(null);
   const [index, setIndex] = useState(0);
   const [playing, setPlaying] = useState<number | null>(null);
+  // Full-size images load only for the current slide and its neighbours.
+  const [near, setNear] = useState<Set<number>>(() => new Set([0, 1]));
+  useEffect(() => {
+    setNear((s) => (s.has(index - 1) && s.has(index) && s.has(index + 1) ? s : new Set([...s, index - 1, index, index + 1])));
+  }, [index]);
   const canFullscreen = typeof document !== 'undefined' && !!document.fullscreenEnabled;
 
   // Moving away from a trailer stops it.
@@ -74,7 +79,7 @@ export function StoreGallery({ media, title }: { media: StoreMedia[]; title: str
         <div ref={trackRef} className="media-track" onScroll={onScroll}>
           {media.map((m, i) => (
             <div key={m.src} className="media-slide" aria-hidden={i !== index}>
-              {m.kind === 'video' ? (
+              {!near.has(i) ? null : m.kind === 'video' ? (
                 playing === i ? (
                   <video poster={m.poster} controls autoPlay playsInline>
                     <source src={m.src} type="video/mp4" />
@@ -88,14 +93,14 @@ export function StoreGallery({ media, title }: { media: StoreMedia[]; title: str
                     tabIndex={i === index ? 0 : -1}
                     aria-label={`Play trailer ${media.slice(0, i + 1).filter((x) => x.kind === 'video').length} for ${title}`}
                   >
-                    <img src={m.poster} alt="" loading={i === 0 ? 'eager' : 'lazy'} draggable={false} />
+                    <img src={m.poster} alt="" draggable={false} />
                     <span className="media-play-btn">
                       <Play size={30} fill="currentColor" />
                     </span>
                   </button>
                 )
               ) : (
-                <img src={m.src} alt={`${title} screenshot`} loading={i === 0 ? 'eager' : 'lazy'} draggable={false} />
+                <img src={m.src} srcSet={`${m.small} 640w, ${m.src} 1280w`} sizes="(max-width: 700px) 100vw, 880px" alt={`${title} screenshot`} draggable={false} />
               )}
             </div>
           ))}
