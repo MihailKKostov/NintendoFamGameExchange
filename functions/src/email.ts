@@ -78,8 +78,8 @@ const strip = (html: string) =>
   html.replace(/<[^>]+>/g, '').replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&#39;/g, "'");
 
 async function send(email: Email) {
-  const provider = EMAIL_PROVIDER.value().toLowerCase();
-  const key = EMAIL_API_KEY.value();
+  const provider = EMAIL_PROVIDER.value().trim().toLowerCase();
+  const key = EMAIL_API_KEY.value().trim();
   const from = EMAIL_FROM.value();
   if (provider === 'resend') {
     const res = await fetch('https://api.resend.com/emails', {
@@ -102,18 +102,39 @@ async function send(email: Email) {
       }),
     });
     if (!res.ok) throw new Error(`Brevo ${res.status}: ${await res.text()}`);
+  } else {
+    throw new Error(`Unknown EMAIL_PROVIDER "${provider}"`);
   }
 }
 
-const enabled = () => ['resend', 'brevo'].includes(EMAIL_PROVIDER.value().toLowerCase()) && !!SITE_URL.value();
+const enabled = () => ['resend', 'brevo'].includes(EMAIL_PROVIDER.value().trim().toLowerCase()) && !!SITE_URL.value().trim();
+
+/** Log (once per run) why emails are being skipped, so a misconfiguration is visible in the logs. */
+function explainDisabled(what: string) {
+  const provider = EMAIL_PROVIDER.value().trim();
+  console.log(
+    `Not emailing ${what}: email is switched off. EMAIL_PROVIDER="${provider || '(empty)'}" ` +
+      `(needs "brevo" or "resend"), SITE_URL is ${SITE_URL.value().trim() ? 'set' : 'MISSING'}. ` +
+      'Set them in functions/.env.<project-id> and redeploy the functions.',
+  );
+}
+
+const maskEmail = (e: string) => e.replace(/^(.{2}).*(@.*)$/, '$1…$2');
 
 export const onNotificationCreated = onDocumentCreated(
   { document: 'users/{uid}/notifications/{nid}', secrets: [EMAIL_API_KEY] },
   async (event) => {
-    if (!enabled() || !event.data) return;
+    if (!event.data) return;
+    if (!enabled()) {
+      explainDisabled('a notification');
+      return;
+    }
     const n = event.data.data();
     const user = (await db.doc(`users/${event.params.uid}`).get()).data() as UserDoc | undefined;
-    if (!user?.email || !user.email_notifications) return;
+    if (!user?.email || !user.email_notifications) {
+      console.log('Not emailing a notification: the recipient turned email notifications off.');
+      return;
+    }
     const family = (await db.doc(`families/${n.family_id}`).get()).data();
     const familyLabel = family ? `${family.emoji ?? ''} ${family.name}`.trim() : '';
 
@@ -185,6 +206,7 @@ export const onNotificationCreated = onDocumentCreated(
     const text = [headline, '', strip(intro), n.game_title ?? '', n.body ? `\n"${n.body}"` : '', '', loanUrl].join('\n');
     try {
       await send({ to: user.email, subject, html, text });
+      console.log(`Notification email (${n.kind}) sent to ${maskEmail(user.email)} via ${EMAIL_PROVIDER.value().trim()}.`);
       await event.data.ref.update({ emailed_at: now() });
     } catch (err) {
       console.error('Notification email failed', err);
@@ -194,7 +216,11 @@ export const onNotificationCreated = onDocumentCreated(
 );
 
 export const onInviteCreated = onDocumentCreated({ document: 'invites/{inviteId}', secrets: [EMAIL_API_KEY] }, async (event) => {
-  if (!enabled() || !event.data) return;
+  if (!event.data) return;
+  if (!enabled()) {
+    explainDisabled('an invite');
+    return;
+  }
   const inv = event.data.data();
   if (inv.status !== 'pending') return;
   const url = link(`/join/${event.params.inviteId}`);
@@ -212,8 +238,10 @@ export const onInviteCreated = onDocumentCreated({ document: 'invites/{inviteId}
       html,
       text: `${inv.invited_by_name} invited you to ${inv.family_name} on the Family Game Exchange.\nSign in with ${inv.email} to join:\n${url}`,
     });
+    console.log(`Invite email sent to ${maskEmail(inv.email)} via ${EMAIL_PROVIDER.value().trim()}.`);
     await event.data.ref.update({ emailed_at: now() });
   } catch (err) {
     console.error('Invite email failed', err);
+    await event.data.ref.update({ email_error: String(err).slice(0, 500) });
   }
 });
