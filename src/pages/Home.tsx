@@ -1,6 +1,6 @@
 import { useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowLeftRight, Check, ChevronLeft, ChevronRight, Gamepad2, LayoutGrid, Plus, Sparkles, X } from 'lucide-react';
+import { ArrowLeftRight, Check, ChevronLeft, ChevronRight, Gamepad2, LayoutGrid, Sparkles, X } from 'lucide-react';
 import { AddGameDialog } from '../components/AddGameDialog';
 import { Avatar } from '../components/Avatar';
 import { GameIcon } from '../components/GameIcon';
@@ -267,13 +267,6 @@ export function Home() {
               </Link>
             );
           })}
-          <button type="button" className="family-chip add" onClick={() => setAdding(true)}>
-            <span className="avatar ring add-circle" style={{ width: 68, height: 68 }}>
-              <Plus size={28} />
-            </span>
-            <b>Add a game</b>
-            <span className="muted small">to your library</span>
-          </button>
         </div>
       </section>
 
