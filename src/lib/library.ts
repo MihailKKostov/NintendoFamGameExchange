@@ -91,6 +91,8 @@ export interface Filters {
   local: boolean;
   online: boolean;
   coop: boolean;
+  /** Hide games you already own a copy of. */
+  notMine: boolean;
   owner: string;
   availability: '' | 'available' | 'on_loan';
   format: '' | 'physical' | 'digital';
@@ -99,7 +101,7 @@ export interface Filters {
 
 export const emptyFilters: Filters = {
   q: '', genres: [], platform: '', publisher: '', developer: '', year: '', players: '',
-  multiplayer: false, local: false, online: false, coop: false, owner: '', availability: '', format: '', sort: 'recent',
+  multiplayer: false, local: false, online: false, coop: false, notMine: false, owner: '', availability: '', format: '', sort: 'recent',
 };
 
 export function filtersFromParams(p: URLSearchParams): Filters {
@@ -119,6 +121,7 @@ export function filtersFromParams(p: URLSearchParams): Filters {
     local: p.has('local'),
     online: p.has('online'),
     coop: p.has('coop'),
+    notMine: p.has('notmine'),
     owner: p.get('owner') ?? '',
     availability: pick('availability', ['', 'available', 'on_loan'] as const, ''),
     format: pick('format', ['', 'physical', 'digital'] as const, ''),
@@ -134,6 +137,7 @@ export function filtersToParams(f: Filters): URLSearchParams {
     if (f[k]) p.set(k, f[k]);
   }
   for (const k of ['multiplayer', 'local', 'online', 'coop'] as const) if (f[k]) p.set(k, '1');
+  if (f.notMine) p.set('notmine', '1');
   if (f.sort !== 'recent') p.set('sort', f.sort);
   return p;
 }
@@ -141,13 +145,13 @@ export function filtersToParams(f: Filters): URLSearchParams {
 export function activeFilterCount(f: Filters): number {
   let n = f.genres.length;
   for (const k of ['platform', 'publisher', 'developer', 'year', 'players', 'owner', 'availability', 'format'] as const) if (f[k]) n++;
-  for (const k of ['multiplayer', 'local', 'online', 'coop'] as const) if (f[k]) n++;
+  for (const k of ['multiplayer', 'local', 'online', 'coop', 'notMine'] as const) if (f[k]) n++;
   return n;
 }
 
 const norm = (s: string) => s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
 
-export function applyFilters(entries: GameEntry[], f: Filters): GameEntry[] {
+export function applyFilters(entries: GameEntry[], f: Filters, meId = ''): GameEntry[] {
   const words = norm(f.q).split(/\s+/).filter(Boolean);
   const out = entries.filter(({ game: g, copies, owners }) => {
     if (words.length) {
@@ -167,6 +171,7 @@ export function applyFilters(entries: GameEntry[], f: Filters): GameEntry[] {
     if (f.online && !g.online_multiplayer) return false;
     if (f.coop && !g.coop) return false;
     if (f.owner && !copies.some((c) => c.item.owner_id === f.owner)) return false;
+    if (f.notMine && meId && copies.some((c) => c.item.owner_id === meId)) return false;
     if (f.format && !copies.some((c) => c.item.format === f.format)) return false;
     if (f.availability === 'available' && !copies.some((c) => c.item.lendable && !c.active)) return false;
     if (f.availability === 'on_loan' && !copies.some((c) => c.active)) return false;

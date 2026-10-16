@@ -16,7 +16,7 @@ export function LibraryBrowser({
   const filters = useMemo(() => filtersFromParams(params), [params]);
   const facets = useMemo(() => facetOptions(entries), [entries]);
   const effective = useMemo<Filters>(() => (fixedOwner ? { ...filters, owner: fixedOwner } : filters), [filters, fixedOwner]);
-  const results = useMemo(() => applyFilters(entries, effective), [entries, effective]);
+  const results = useMemo(() => applyFilters(entries, effective, family.meId), [entries, effective, family.meId]);
 
   const setFilters = (f: Filters) => {
     const p = filtersToParams(f);
@@ -37,6 +37,7 @@ export function LibraryBrowser({
         facets={facets}
         owners={family.members}
         hideOwner={!!fixedOwner}
+        showNotMine={fixedOwner !== family.meId}
         resultCount={results.length}
       />
       {results.length ? (
