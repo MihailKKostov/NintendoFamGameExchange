@@ -77,7 +77,7 @@ You'll need a Firebase project on the **Blaze** (pay-as-you-go) plan. Cloud Func
    - **Google:** enable it.
    - **Email/Password:** enable it **and** turn on **Email link (passwordless sign-in)**.
    - **Authentication → Settings → Authorized domains:** add `<your-github-user>.github.io`.
-4. **Firestore Database:** create a database in production mode, in a location near you.
+4. **Firestore Database:** create a database in production mode. The functions are set up for **eur3 (Europe)**; see the region note below if you pick a US location.
 5. **Storage:** click *Get started* to create the default bucket.
 
 ### 2. Deploy the rules and Cloud Functions
@@ -104,7 +104,7 @@ The first deploy asks for a few settings and saves them to `functions/.env.<proj
 - Without email, everything still works with in-app notifications, and admins can **copy invite links** to send in any messenger.
 - Sign-in emails are sent by Firebase itself. Customize them in *Authentication → Templates*.
 
-> If you change the functions region (`REGION` in `functions/src/common.ts`, default `us-central1`), set `FIREBASE_FUNCTIONS_REGION` in step 3 to match.
+> The Cloud Functions run in `europe-west1`, next to a Europe (`eur3`) Firestore database. If your database is in the US (`nam5`), change `REGION` in `functions/src/common.ts` to `us-central1` and set the GitHub variable `FIREBASE_FUNCTIONS_REGION` to `us-central1` in step 3.
 
 ### 3. Publish on GitHub Pages
 

@@ -32,7 +32,7 @@ export const config = {
   firebase,
   /** Without a Firebase config the app runs fully in the browser with sample data. */
   demo: !firebase?.apiKey || !firebase?.projectId,
-  functionsRegion: (import.meta.env.VITE_FIREBASE_FUNCTIONS_REGION as string | undefined)?.trim() || 'us-central1',
+  functionsRegion: (import.meta.env.VITE_FIREBASE_FUNCTIONS_REGION as string | undefined)?.trim() || 'europe-west1',
   useEmulators: String(import.meta.env.VITE_USE_FIREBASE_EMULATORS ?? '').toLowerCase() === 'true',
   appName: 'Family Game Exchange',
 };

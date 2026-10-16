@@ -3,8 +3,12 @@ import { getFirestore, type DocumentReference, type Transaction } from 'firebase
 import { HttpsError, type CallableRequest } from 'firebase-functions/v2/https';
 import { setGlobalOptions } from 'firebase-functions/v2';
 
-/** Change this (and VITE_FIREBASE_FUNCTIONS_REGION in the web app) to run closer to your family. */
-export const REGION = 'us-central1';
+/**
+ * Where the Cloud Functions run. Keep it next to your Firestore database —
+ * europe-west1 for an eur3 database, us-central1 for nam5. If you change it,
+ * set VITE_FIREBASE_FUNCTIONS_REGION (GitHub variable FIREBASE_FUNCTIONS_REGION) to match.
+ */
+export const REGION = 'europe-west1';
 
 initializeApp();
 setGlobalOptions({ region: REGION, maxInstances: 10 });
