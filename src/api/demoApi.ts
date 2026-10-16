@@ -535,6 +535,12 @@ export function createDemoApi(): Api {
         state.library = state.library.filter((i) => i.id !== id);
       }, 'library_items', 'loans', 'notifications'),
 
+    setFavoriteGames: (gameIds) =>
+      run(() => {
+        const f = fam();
+        const m = state.members.find((x) => x.family_id === f.id && x.id === me().id);
+        if (m) m.favorite_game_ids = [...new Set(gameIds)].slice(0, 5);
+      }, 'members'),
     requestLoan: (itemId, message) =>
       run(() => {
         const f = fam();

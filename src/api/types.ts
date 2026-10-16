@@ -69,6 +69,8 @@ export interface Api {
   addToLibrary(game: GameInput | { id: string }, opts: AddToLibraryOptions): Promise<string>;
   updateLibraryItem(id: string, patch: LibraryItemPatch): Promise<void>;
   removeLibraryItem(id: string): Promise<void>;
+  /** Pick up to 5 of your games (current family) to show on your profile. */
+  setFavoriteGames(gameIds: string[]): Promise<void>;
 
   requestLoan(itemId: string, message: string): Promise<string>;
   respondToLoan(loanId: string, accept: boolean, message: string, due: string | null): Promise<void>;

@@ -7,6 +7,10 @@ type Sound = 'tick' | 'select' | 'back' | 'success' | 'error' | 'pop' | 'toggle'
 let ctx: AudioContext | null = null;
 let enabled = true;
 let lastTick = 0;
+let lastPlayed = 0;
+
+/** True if a sound played very recently (so a generic click sound would double up). */
+export const playedRecently = (ms = 120) => performance.now() - lastPlayed < ms;
 
 try {
   enabled = localStorage.getItem('fge-sound') !== 'off';
@@ -52,6 +56,7 @@ function tone(ac: AudioContext, freq: number, start: number, dur: number, vol: n
 export function play(sound: Sound) {
   const ac = audio();
   if (!ac) return;
+  lastPlayed = performance.now();
   const t = ac.currentTime + 0.005;
   switch (sound) {
     case 'tick': {

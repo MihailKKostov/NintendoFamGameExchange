@@ -3,7 +3,7 @@ import { HashRouter, Route, Routes } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Layout } from './components/Layout';
 import { PageLoader } from './components/ui';
-import { play } from './lib/sounds';
+import { play, playedRecently } from './lib/sounds';
 import { Browse } from './pages/Browse';
 import { GamePage } from './pages/GamePage';
 import { Home } from './pages/Home';
@@ -27,24 +27,35 @@ const queryClient = new QueryClient({
   defaultOptions: { queries: { staleTime: 30_000, refetchOnWindowFocus: true, retry: 1 } },
 });
 
-/** Console-style feedback: a soft tick when hovering selectable things, a click on press. */
+/**
+ * Console-style feedback, only for meaningful actions:
+ * - a click sound when you actually activate a button or link. `click` never
+ *   fires for a swipe or scroll, unlike pointerdown/touchstart.
+ * - a soft tick when hovering tiles — mouse/trackpad only, never on touch.
+ * Controls that play their own sound (chips, toggles, pickers…) aren't doubled.
+ */
 function useUiSounds() {
   useEffect(() => {
+    const hoverDevice = window.matchMedia('(hover: hover) and (pointer: fine)');
     let last: Element | null = null;
-    const over = (e: MouseEvent) => {
-      const el = (e.target as Element).closest?.('.selectable, .dock-btn, .hero-tile, .chip');
+    const over = (e: PointerEvent) => {
+      if (e.pointerType !== 'mouse' || !hoverDevice.matches) return;
+      const el = (e.target as Element).closest?.('.selectable, .dock-btn, .hero-tile');
       if (el && el !== last) play('tick');
       last = el;
     };
-    const down = (e: PointerEvent) => {
-      const el = (e.target as Element).closest?.('a, button');
-      if (el && !(el as HTMLButtonElement).disabled && !el.closest('.modal-close, .search-ac, .toggle')) play('select');
+    const click = (e: MouseEvent) => {
+      const el = (e.target as Element).closest?.('a[href], button');
+      if (!el || (el as HTMLButtonElement).disabled) return;
+      if (el.closest('.modal-close, .search-ac, .toggle')) return;
+      if (playedRecently()) return; // the control already made its own sound
+      play('select');
     };
-    document.addEventListener('mouseover', over);
-    document.addEventListener('pointerdown', down);
+    document.addEventListener('pointerover', over);
+    document.addEventListener('click', click);
     return () => {
-      document.removeEventListener('mouseover', over);
-      document.removeEventListener('pointerdown', down);
+      document.removeEventListener('pointerover', over);
+      document.removeEventListener('click', click);
     };
   }, []);
 }

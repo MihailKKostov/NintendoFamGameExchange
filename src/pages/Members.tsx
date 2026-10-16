@@ -1,9 +1,10 @@
 import { Link } from 'react-router-dom';
-import { Crown, Mail, Settings2, ShieldCheck, UserPlus } from 'lucide-react';
+import { Crown, Mail, Settings2, ShieldCheck, Star, UserPlus } from 'lucide-react';
 import { Avatar } from '../components/Avatar';
 import { GameIcon } from '../components/GameIcon';
 import { PageLoader } from '../components/ui';
 import { displayName } from '../lib/format';
+import { favoriteGames } from '../lib/library';
 import { useFamily, useFamilyInvites } from '../state/data';
 import { useFamilies } from '../state/families';
 
@@ -38,7 +39,8 @@ export function Members() {
           const items = family.items.filter((i) => i.owner_id === m.id);
           const lent = family.loans.filter((l) => l.lender_id === m.id && l.status === 'active').length;
           const borrowed = family.loans.filter((l) => l.borrower_id === m.id && l.status === 'active').length;
-          const icons = items.slice(0, 4).map((i) => family.gameById.get(i.game_id)).filter(Boolean);
+          const favorites = favoriteGames(m, family.items, family.gameById);
+          const icons = favorites.length ? favorites : items.slice(0, 4).map((i) => family.gameById.get(i.game_id)).filter(Boolean);
           return (
             <Link key={m.id} to={`/members/${m.id}`} className="member-card" style={{ ['--accent' as string]: m.accent_color }}>
               <span className="member-card-band" />
@@ -58,7 +60,11 @@ export function Members() {
                 <span><b>{lent}</b> lent</span>
                 <span><b>{borrowed}</b> borrowed</span>
               </span>
-              <span className="member-icons">
+              <span
+                className={`member-icons${favorites.length ? ' favorites' : ''}`}
+                title={favorites.length ? `${displayName(m)}’s favourite games` : 'Recently added'}
+              >
+                {favorites.length > 0 && <Star size={14} className="member-icons-star" aria-label="Favourites" />}
                 {icons.map((g) => (
                   <GameIcon key={g!.id} game={g!} size={44} />
                 ))}

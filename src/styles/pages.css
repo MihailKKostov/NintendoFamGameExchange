@@ -1915,15 +1915,6 @@
 .member-stats b {
   color: var(--text);
 }
-.member-icons {
-  display: flex;
-  gap: 6px;
-  margin-top: 12px;
-}
-.member-icons .game-icon {
-  width: 44px;
-  border-radius: 8px;
-}
 .invite-pending {
   list-style: none;
   padding: 0;
@@ -2541,4 +2532,157 @@
   background: var(--cyan-soft);
   color: var(--cyan-text);
   animation: pop-in 0.4s var(--ease-bounce);
+}
+
+/* ==========================================================================
+   Favourite games
+   ========================================================================== */
+.fav-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.fav-title svg {
+  color: #ffb000;
+  fill: #ffb000;
+}
+.fav-slots {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 16px;
+  max-width: 900px;
+}
+@media (max-width: 560px) {
+  .fav-slots {
+    gap: 8px;
+  }
+}
+.fav-slot {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+  color: var(--text);
+  outline: none;
+}
+.fav-slot > .selectable {
+  display: block;
+  border-radius: var(--tile-radius);
+  box-shadow: var(--shadow-2);
+}
+.fav-slot-title {
+  font-weight: 800;
+  font-size: 13.5px;
+  line-height: 1.25;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.fav-slot:hover .fav-slot-title {
+  color: var(--cyan-text);
+}
+@media (max-width: 560px) {
+  .fav-slot-title {
+    display: none;
+  }
+}
+.fav-slot-empty {
+  display: grid;
+  place-items: center;
+  aspect-ratio: 1;
+  border: 3px dashed var(--border-strong);
+  border-radius: var(--tile-radius);
+  background: var(--surface-2);
+  color: var(--text-3);
+  transition: border-color 0.15s, color 0.15s;
+}
+.fav-slot-empty:hover {
+  border-color: var(--cyan);
+  color: var(--cyan-text);
+}
+.fav-picker {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(104px, 1fr));
+  gap: 14px 12px;
+}
+.fav-pick {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  text-align: left;
+  color: var(--text);
+  min-width: 0;
+}
+.fav-pick-art {
+  position: relative;
+  display: block;
+  border-radius: var(--tile-radius);
+  transition: box-shadow 0.15s, transform 0.18s var(--ease-bounce), opacity 0.15s;
+}
+.fav-pick:hover:not(:disabled) .fav-pick-art {
+  box-shadow: 0 0 0 3px var(--cyan);
+}
+.fav-pick.on .fav-pick-art {
+  box-shadow: 0 0 0 3px var(--surface), 0 0 0 6px #ffb000;
+  transform: scale(0.96);
+}
+.fav-pick.full {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+.fav-pick-num {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: #ffb000;
+  color: #2d2d2d;
+  font-weight: 900;
+  font-size: 14px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+  animation: pop-in 0.25s var(--ease-bounce);
+}
+.fav-pick-title {
+  font-size: 12.5px;
+  font-weight: 700;
+  line-height: 1.25;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Family cards: up to five icons, with a star when they're favourites */
+.member-icons {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(0, 44px));
+  justify-content: center;
+  gap: 6px;
+  align-self: stretch;
+  margin-top: 12px;
+}
+.member-icons .game-icon {
+  width: 100%;
+  border-radius: 8px;
+}
+.member-icons.favorites {
+  grid-template-columns: repeat(5, minmax(0, 44px));
+}
+.member-icons-star {
+  position: absolute;
+  top: -8px;
+  left: -2px;
+  z-index: 1;
+  color: #ffb000;
+  fill: #ffb000;
+  filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.3));
 }

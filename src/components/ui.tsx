@@ -1,7 +1,7 @@
 import { useEffect, useId, useRef, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
 import { X } from 'lucide-react';
-import { play } from '../lib/sounds';
+import { play, playedRecently } from '../lib/sounds';
 
 export function Spinner({ size = 28, label = 'Loading' }: { size?: number; label?: string }) {
   return (
@@ -114,7 +114,7 @@ export function Modal({
 
   useEffect(() => {
     if (!open) return;
-    play('pop');
+    if (!playedRecently(250)) play('pop');
     const prev = document.activeElement as HTMLElement | null;
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {

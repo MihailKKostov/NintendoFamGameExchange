@@ -375,6 +375,13 @@ export function createFirebaseApi(): Api {
       }
     },
     removeLibraryItem: (itemId) => famCall('removeLibraryItem', { itemId }).then(() => {}),
+    async setFavoriteGames(gameIds) {
+      try {
+        await updateDoc(doc(db, `families/${fid()}/members/${uid()}`), { favorite_game_ids: [...new Set(gameIds)].slice(0, 5) });
+      } catch (e) {
+        throw friendlyError(e);
+      }
+    },
 
     requestLoan: (itemId, message) => famCall<{ loanId: string }>('requestLoan', { itemId, message }).then((r) => r.loanId),
     respondToLoan: (loanId, accept, message, due) => famCall('respondToLoan', { loanId, accept, message, due }).then(() => {}),
