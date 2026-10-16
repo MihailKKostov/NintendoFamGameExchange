@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
 import {
-  ArrowLeftRight, Bell, Check, CheckCheck, ChevronDown, Gamepad2, House, LayoutGrid, Plus, RotateCcw, Settings, Users,
+  ArrowLeftRight, Bell, Check, CheckCheck, ChevronDown, Gamepad2, House, LayoutGrid, LogOut, Plus, RotateCcw, Settings, Users,
   UserCog,
 } from 'lucide-react';
 import { api } from '../api';
@@ -204,7 +204,7 @@ const DEMO_PEOPLE = [
 ];
 
 export function DemoBanner() {
-  const { session } = useAuth();
+  const { session, signOut } = useAuth();
   const [busy, setBusy] = useState(false);
   const known = DEMO_PEOPLE.some(([e]) => e === session?.email);
   return (
@@ -229,6 +229,9 @@ export function DemoBanner() {
           </option>
         ))}
       </select>
+      <button type="button" className="btn btn-ghost btn-sm" onClick={signOut}>
+        <LogOut size={14} /> Sign out
+      </button>
       <button type="button" className="btn btn-ghost btn-sm" onClick={resetDemo}>
         <RotateCcw size={14} /> Reset
       </button>

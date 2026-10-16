@@ -1,8 +1,8 @@
-import { useEffect, useState, type FormEvent, type ReactNode } from 'react';
+import { useEffect, useState, type FormEvent } from 'react';
 import { ArrowRight, Mail, MailCheck } from 'lucide-react';
 import { api } from '../api';
 import { rememberedLoginEmail } from '../api/firebaseApi';
-import { Logo } from '../components/Logo';
+import { AuthShell } from '../components/AuthShell';
 import { Spinner } from '../components/ui';
 import { config } from '../config';
 import { play } from '../lib/sounds';
@@ -13,26 +13,6 @@ const DEMO_PEOPLE = [
   ['leo@demo.family', 'Leo', '👾', '#1edc00'],
   ['zoe@demo.family', 'Auntie Zo', '🦊', '#b400e6'],
 ];
-
-export function AuthShell({ children }: { children: ReactNode }) {
-  return (
-    <div className="login">
-      <div className="login-hero" aria-hidden="true">
-        <div className="login-tiles">
-          {Array.from({ length: 18 }, (_, i) => (
-            <i key={i} style={{ animationDelay: `${(i % 6) * 0.35}s` }} />
-          ))}
-        </div>
-      </div>
-      <div className="login-card">
-        <div className="login-logo">
-          <Logo size="lg" />
-        </div>
-        {children}
-      </div>
-    </div>
-  );
-}
 
 function GoogleIcon() {
   return (

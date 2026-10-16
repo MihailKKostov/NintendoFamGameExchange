@@ -28,16 +28,16 @@ A website for sharing Nintendo games between family and friends. It runs on GitH
 
 ---
 
-## Try it right now (demo mode)
+## Try it locally (demo mode)
 
-With no Firebase config, the app runs in **demo mode**. Sample families live only in your browser. You can sign in as a sample person, switch between them from the banner to test lending, or type any email to start fresh and create your own family.
+On your own computer, without a Firebase config, `npm run dev` runs the app in **demo mode**: sample families stored only in your browser, sign in as a sample person (or any email) and switch people from the banner to test lending.
 
 ```bash
 npm install
 npm run dev        # http://localhost:5173
 ```
 
-A GitHub Pages deploy without a Firebase config also runs in demo mode.
+The published site never shows demo data: without a usable Firebase config the GitHub workflow stops with an error, and a build made without one shows a "setup needed" page. (To deliberately publish the demo, set a repository variable `DEMO` = `true`.)
 
 ---
 
@@ -110,7 +110,7 @@ The first deploy asks for a few settings and saves them to `functions/.env.<proj
 
 1. Go to **Settings → Pages → Build and deployment → Source** and choose **GitHub Actions**.
 2. Go to **Settings → Secrets and variables → Actions → Variables** and add:
-   - `FIREBASE_CONFIG`: the web config from step 1.2, as JSON or pasted straight from the console:
+   - `FIREBASE_CONFIG`: the web config from step 1.2. Paste the console's whole snippet, the `firebaseConfig = {…}` object, or JSON like:
      ```json
      {"apiKey":"…","authDomain":"your-project.firebaseapp.com","projectId":"your-project","storageBucket":"your-project.firebasestorage.app","messagingSenderId":"…","appId":"…"}
      ```
