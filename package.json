@@ -10,7 +10,7 @@
     "typecheck": "tsc -b",
     "functions:build": "npm --prefix functions run build",
     "emulators": "npm --prefix functions run build && npx firebase-tools@15 emulators:start",
-    "deploy:firebase": "npx firebase-tools@15 deploy --only firestore,storage,functions"
+    "deploy:firebase": "npm --prefix functions run build && npx firebase-tools@15 deploy --only firestore,storage,functions"
   },
   "dependencies": {
     "@tanstack/react-query": "^5.104.3",
