@@ -1,0 +1,82 @@
+rules_version = '2';
+
+// Family Game Exchange security rules.
+//
+// * Anyone can sign in, but you only ever see families you are a member of.
+// * Almost every write goes through Cloud Functions (which check the business
+//   rules: who may accept a request, lend a game, invite someone, …). Browsers
+//   may only change the few harmless fields allowed below.
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() { return request.auth != null; }
+    function family(fid) { return get(/databases/$(database)/documents/families/$(fid)).data; }
+    function isMember(fid) { return signedIn() && request.auth.uid in family(fid).member_ids; }
+    function isAdmin(fid) { return signedIn() && request.auth.uid in family(fid).admin_ids; }
+    function myEmail() { return request.auth.token.email.lower(); }
+
+    // Your own profile (and notifications) — private to you.
+    match /users/{uid} {
+      allow read: if signedIn() && request.auth.uid == uid;
+      allow write: if false;
+
+      match /notifications/{nid} {
+        allow read: if signedIn() && request.auth.uid == uid;
+        // Marking as read is the only change a browser may make.
+        allow update: if signedIn() && request.auth.uid == uid
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['read_at'])
+          && request.resource.data.read_at is string;
+        allow create, delete: if false;
+      }
+    }
+
+    // Invites: visible to the invited email address and to that family's admins.
+    match /invites/{inviteId} {
+      allow read: if signedIn() && (
+        (request.auth.token.email_verified == true && resource.data.email == myEmail())
+        || isAdmin(resource.data.family_id)
+      );
+      allow write: if false;
+    }
+
+    match /families/{fid} {
+      allow read: if signedIn() && request.auth.uid in resource.data.member_ids;
+      allow write: if false;
+
+      match /members/{uid} {
+        allow read: if isMember(fid);
+        allow write: if false;
+      }
+      match /games/{gid} {
+        allow read: if isMember(fid);
+        allow write: if false;
+      }
+      match /items/{itemId} {
+        allow read: if isMember(fid);
+        // Owners can tweak their own copy directly (instant UI); adding and
+        // removing copies goes through Cloud Functions.
+        allow update: if isMember(fid)
+          && resource.data.owner_id == request.auth.uid
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['format', 'condition', 'notes', 'lendable'])
+          && request.resource.data.format in ['physical', 'digital']
+          && (request.resource.data.condition == null || request.resource.data.condition in ['mint', 'good', 'fair', 'worn'])
+          && (request.resource.data.notes == null || (request.resource.data.notes is string && request.resource.data.notes.size() <= 500))
+          && request.resource.data.lendable is bool;
+        allow create, delete: if false;
+      }
+      match /loans/{loanId} {
+        allow read: if isMember(fid);
+        allow write: if false;
+
+        match /events/{eventId} {
+          allow read: if isMember(fid);
+          allow write: if false;
+        }
+      }
+      // Server-only data (nothing here is ever sent to browsers).
+      match /private/{doc} {
+        allow read, write: if false;
+      }
+    }
+  }
+}
