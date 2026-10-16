@@ -38,7 +38,18 @@ export function saveOpenAi(key: string | null, model?: string | null) {
   window.dispatchEvent(new Event('fge-openai-changed'));
 }
 
-export const looksLikeKey = (k: string) => /^sk-[A-Za-z0-9_-]{20,300}$/.test(k.trim());
+/**
+ * Clean up a pasted key: drop invisible characters, spaces/line breaks,
+ * quotes and prefixes like `OPENAI_API_KEY=` or `Bearer`.
+ */
+export function normalizeKey(raw: string): string {
+  const s = raw.replace(/[\u200B-\u200D\u2060\uFEFF]/g, '').replace(/\s+/g, '').replace(/["'`]/g, '');
+  const i = s.indexOf('sk-');
+  return i >= 0 ? s.slice(i) : s;
+}
+
+/** Loose sanity check — OpenAI itself verifies the key before it's saved. */
+export const looksLikeKey = (k: string) => /^sk-[^\s]{16,}$/.test(normalizeKey(k));
 
 /** Check a key with OpenAI before saving it. */
 export async function testOpenAiKey(key: string): Promise<void> {
