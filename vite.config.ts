@@ -6,6 +6,18 @@ import react from '@vitejs/plugin-react';
 export default defineConfig({
   base: process.env.BASE_PATH || '/',
   plugins: [react()],
-  // One ~200 kB (gzipped) bundle: React + supabase-js + the app. Fine for this use.
-  build: { chunkSizeWarningLimit: 900 },
+  build: {
+    chunkSizeWarningLimit: 700,
+    rolldownOptions: {
+      output: {
+        // Separate, long-cached vendor chunks so app updates download little.
+        codeSplitting: {
+          groups: [
+            { name: 'firebase', test: /node_modules[\\/](@firebase|firebase)[\\/]/ },
+            { name: 'react', test: /node_modules[\\/](react|react-dom|react-router|react-router-dom|scheduler|@tanstack)[\\/]/ },
+          ],
+        },
+      },
+    },
+  },
 });

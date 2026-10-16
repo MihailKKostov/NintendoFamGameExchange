@@ -2,28 +2,19 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { api, type Table } from '../api';
 import { buildEntries } from '../lib/library';
-import type { Profile } from '../types';
 import { useAuth } from './auth';
+import { useFamilies } from './families';
 import { useToast } from './toast';
 
+/** Family-scoped query keys start with ['fam', familyId, …]. */
 export const qk = {
-  profiles: ['profiles'] as const,
-  games: ['games'] as const,
-  library: ['library'] as const,
-  loans: ['loans'] as const,
-  events: (loanId: string) => ['events', loanId] as const,
-  notifications: ['notifications'] as const,
-  invites: ['invites'] as const,
-};
-
-const tableKeys: Record<Table, readonly (readonly string[])[]> = {
-  profiles: [qk.profiles],
-  games: [qk.games],
-  library_items: [qk.library, qk.games],
-  loans: [qk.loans],
-  loan_events: [['events']],
-  notifications: [qk.notifications],
-  invites: [qk.invites],
+  members: (fid: string) => ['fam', fid, 'members'] as const,
+  games: (fid: string) => ['fam', fid, 'games'] as const,
+  library: (fid: string) => ['fam', fid, 'library_items'] as const,
+  loans: (fid: string) => ['fam', fid, 'loans'] as const,
+  events: (fid: string, loanId: string) => ['fam', fid, 'loan_events', loanId] as const,
+  familyInvites: (fid: string) => ['fam', fid, 'family_invites'] as const,
+  notifications: (uid: string) => ['notifications', uid] as const,
 };
 
 /** Keep every open browser in sync with database changes. */
@@ -31,48 +22,74 @@ export function useLiveUpdates(enabled: boolean) {
   const qc = useQueryClient();
   useEffect(() => {
     if (!enabled) return;
-    return api.subscribe((table) => {
-      for (const key of tableKeys[table]) void qc.invalidateQueries({ queryKey: key });
+    return api.subscribe((table: Table) => {
+      void qc.invalidateQueries({
+        predicate: (q) =>
+          q.queryKey[0] === table ||
+          (q.queryKey[0] === 'fam' && (q.queryKey[2] === table || (table === 'library_items' && q.queryKey[2] === 'games'))),
+      });
     });
   }, [enabled, qc]);
 }
 
-export const useProfiles = () => useQuery({ queryKey: qk.profiles, queryFn: api.listProfiles });
-export const useGames = () => useQuery({ queryKey: qk.games, queryFn: api.listGames });
-export const useLibrary = () => useQuery({ queryKey: qk.library, queryFn: api.listLibrary });
-export const useLoans = () => useQuery({ queryKey: qk.loans, queryFn: api.listLoans });
-export const useInvites = () => useQuery({ queryKey: qk.invites, queryFn: api.listInvites });
-export const useNotifications = () =>
-  useQuery({ queryKey: qk.notifications, queryFn: api.listNotifications, refetchInterval: 60_000 });
-export const useLoanEvents = (loanId: string) =>
-  useQuery({ queryKey: qk.events(loanId), queryFn: () => api.listLoanEvents(loanId) });
+const useFid = () => useFamilies().current?.id ?? '';
 
-/** Everything about the family's shared library, joined and indexed. */
+export const useMembers = () => {
+  const fid = useFid();
+  return useQuery({ queryKey: qk.members(fid), queryFn: api.listMembers, enabled: !!fid });
+};
+export const useGames = () => {
+  const fid = useFid();
+  return useQuery({ queryKey: qk.games(fid), queryFn: api.listGames, enabled: !!fid });
+};
+export const useLibrary = () => {
+  const fid = useFid();
+  return useQuery({ queryKey: qk.library(fid), queryFn: api.listLibrary, enabled: !!fid });
+};
+export const useLoans = () => {
+  const fid = useFid();
+  return useQuery({ queryKey: qk.loans(fid), queryFn: api.listLoans, enabled: !!fid });
+};
+export const useLoanEvents = (loanId: string) => {
+  const fid = useFid();
+  return useQuery({ queryKey: qk.events(fid, loanId), queryFn: () => api.listLoanEvents(loanId), enabled: !!fid });
+};
+export const useFamilyInvites = (enabled = true) => {
+  const fid = useFid();
+  return useQuery({ queryKey: qk.familyInvites(fid), queryFn: api.listFamilyInvites, enabled: !!fid && enabled });
+};
+export const useNotifications = () => {
+  const { session } = useAuth();
+  const uid = session?.userId ?? '';
+  return useQuery({ queryKey: qk.notifications(uid), queryFn: api.listNotifications, enabled: !!uid });
+};
+
+/** Everything about the current family's shared library, joined and indexed. */
 export function useFamily() {
   const { session } = useAuth();
+  const { me: myProfile } = useFamilies();
   const meId = session?.userId ?? '';
-  const profiles = useProfiles();
+  const members = useMembers();
   const games = useGames();
   const library = useLibrary();
   const loans = useLoans();
-  const invites = useInvites();
 
   return useMemo(() => {
-    const profileList = profiles.data ?? [];
-    const profileById = new Map(profileList.map((p) => [p.id, p]));
-    const inviteEmails = new Set((invites.data ?? []).map((i) => i.email));
-    const members: Profile[] = profileList.filter((p) => inviteEmails.has(p.email));
+    const all = members.data ?? [];
+    const profileById = new Map(all.map((p) => [p.id, p]));
+    const active = all.filter((m) => m.status === 'active');
     const gameList = games.data ?? [];
     const items = library.data ?? [];
     const loanList = loans.data ?? [];
     const entries = buildEntries(gameList, items, loanList, profileById, meId);
+    const meMember = profileById.get(meId);
     return {
       meId,
-      me: profileById.get(meId),
-      profiles: profileList,
+      /** Your profile (with your role in this family when available). */
+      me: meMember ?? myProfile,
+      profiles: all,
       profileById,
-      members,
-      invites: invites.data ?? [],
+      members: active,
       games: gameList,
       gameById: new Map(gameList.map((g) => [g.id, g])),
       items,
@@ -80,18 +97,18 @@ export function useFamily() {
       loans: loanList,
       entries,
       entryByGame: new Map(entries.map((e) => [e.game.id, e])),
-      loading: profiles.isLoading || games.isLoading || library.isLoading || loans.isLoading || invites.isLoading,
-      error: profiles.error || games.error || library.error || loans.error || invites.error,
+      loading: members.isLoading || games.isLoading || library.isLoading || loans.isLoading,
+      error: members.error || games.error || library.error || loans.error,
     };
-  }, [meId, profiles.data, games.data, library.data, loans.data, invites.data, profiles.isLoading, games.isLoading,
-    library.isLoading, loans.isLoading, invites.isLoading, profiles.error, games.error, library.error, loans.error, invites.error]);
+  }, [meId, myProfile, members.data, games.data, library.data, loans.data, members.isLoading, games.isLoading,
+    library.isLoading, loans.isLoading, members.error, games.error, library.error, loans.error]);
 }
 
 export type Family = ReturnType<typeof useFamily>;
 
 /**
- * Run a backend action with consistent UX: busy state, refetch, queued emails,
- * a success toast and friendly error toasts. Never throws.
+ * Run a backend action with consistent UX: busy state, refetch, a success
+ * toast and friendly error toasts. Never throws.
  */
 export function useAction() {
   const qc = useQueryClient();
@@ -99,12 +116,11 @@ export function useAction() {
   const [busy, setBusy] = useState(false);
 
   const run = useCallback(
-    async <T,>(fn: () => Promise<T>, opts: { success?: string; emails?: boolean } = {}): Promise<{ ok: boolean; value?: T }> => {
+    async <T,>(fn: () => Promise<T>, opts: { success?: string } = {}): Promise<{ ok: boolean; value?: T }> => {
       setBusy(true);
       try {
         const result = await fn();
         await qc.invalidateQueries();
-        if (opts.emails) void api.flushEmails();
         if (opts.success) toast.success(opts.success);
         return { ok: true, value: result };
       } catch (err) {

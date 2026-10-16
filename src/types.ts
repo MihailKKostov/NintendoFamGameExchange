@@ -8,7 +8,7 @@ export interface Profile {
   accent_color: string;
   bio: string | null;
   friend_code: string | null;
-  email_notifications: boolean;
+  email_notifications?: boolean;
   created_at: string;
   updated_at: string;
 }
@@ -114,20 +114,49 @@ export interface LoanEvent {
 
 export interface AppNotification {
   id: string;
-  user_id: string;
+  family_id: string;
   actor_id: string | null;
+  actor_name: string | null;
   loan_id: string | null;
+  game_title: string | null;
   kind: string;
   body: string | null;
   read_at: string | null;
   created_at: string;
 }
 
+export type Role = 'owner' | 'admin' | 'member';
+
+export interface Family {
+  id: string;
+  name: string;
+  emoji: string;
+  color: string;
+  owner_id: string;
+  member_ids: string[];
+  admin_ids: string[];
+  created_at: string;
+}
+
+export type FamilyInput = Pick<Family, 'name' | 'emoji' | 'color'>;
+
+/** A person's profile as seen inside one family. */
+export interface Member extends Profile {
+  role: Role;
+  status: 'active' | 'removed';
+  joined_at: string;
+}
+
 export interface Invite {
+  id: string;
+  family_id: string;
+  family_name: string;
+  family_emoji: string | null;
   email: string;
-  is_admin: boolean;
-  note: string | null;
-  invited_by: string | null;
+  role: 'admin' | 'member';
+  invited_by: string;
+  invited_by_name: string;
+  status: 'pending' | 'accepted' | 'declined' | 'revoked';
   created_at: string;
 }
 

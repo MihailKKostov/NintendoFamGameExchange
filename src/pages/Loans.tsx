@@ -77,7 +77,7 @@ export function LoanRow({ loan, showActions = true }: { loan: Loan; showActions?
               type="button"
               className="btn btn-secondary btn-sm"
               disabled={busy}
-              onClick={() => run(() => api.cancelLoanRequest(loan.id, ''), { emails: true, success: 'Request cancelled.' })}
+              onClick={() => run(() => api.cancelLoanRequest(loan.id, ''), { success: 'Request cancelled.' })}
             >
               <X size={16} /> Cancel request
             </button>

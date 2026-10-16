@@ -11,7 +11,7 @@ import { Avatar } from './Avatar';
 import { GameIcon } from './GameIcon';
 import { Field, Modal, Segmented, Spinner, Toggle } from './ui';
 
-const emailNote = (who: string) => (config.demo ? `(Demo mode — no email is sent.)` : `${who} will get an email.`);
+const emailNote = (who: string) => (config.demo ? '' : `${who} will be notified.`);
 
 function DuePicker({ due, setDue }: { due: string; setDue: (d: string) => void }) {
   const presets: [string, number][] = [['1 week', 7], ['2 weeks', 14], ['1 month', 30]];
@@ -62,7 +62,6 @@ export function RequestDialog({
 
   const submit = async () => {
     const res = await run(() => api.requestLoan(item.id, message), {
-      emails: true,
       success: `Request sent! ${emailNote(ownerName)}`,
     });
     if (res.ok) {
@@ -126,7 +125,6 @@ export function RespondDialog({
 
   const submit = async () => {
     const res = await run(() => api.respondToLoan(loan.id, accept, message, accept ? due || null : null), {
-      emails: true,
       success: accept ? `Accepted! ${emailNote(displayName(borrower))}` : 'Request declined.',
     });
     if (res.ok) onClose();
@@ -194,7 +192,6 @@ export function LendDialog({ open, onClose, item }: { open: boolean; onClose: ()
   const submit = async () => {
     const borrower = family.profileById.get(to);
     const res = await run(() => api.lendGame(item.id, to, due || null, message), {
-      emails: true,
       success: `Lent to ${displayName(borrower)}! ${emailNote(displayName(borrower))}`,
     });
     if (res.ok) {
@@ -262,7 +259,7 @@ export function ReturnDialog({ open, onClose, loan }: { open: boolean; onClose: 
   }, [open, iAmLender]);
 
   const submit = async () => {
-    const res = await run(() => api.markReturned(loan.id, message), { emails: true, success: 'Marked as returned. 📦' });
+    const res = await run(() => api.markReturned(loan.id, message), { success: 'Marked as returned. 📦' });
     if (res.ok) onClose();
   };
 
@@ -302,7 +299,7 @@ export function DueDialog({ open, onClose, loan }: { open: boolean; onClose: () 
     if (open) setDue(loan.due_at ?? '');
   }, [open, loan.due_at]);
   const submit = async () => {
-    const res = await run(() => api.setLoanDue(loan.id, due || null), { emails: true, success: 'Due date updated.' });
+    const res = await run(() => api.setLoanDue(loan.id, due || null), { success: 'Due date updated.' });
     if (res.ok) onClose();
   };
   return (
@@ -365,7 +362,7 @@ export function ItemDialog({ open, onClose, item }: { open: boolean; onClose: ()
     if (res.ok) onClose();
   };
   const remove = async () => {
-    const res = await run(() => api.removeLibraryItem(item.id), { emails: true, success: 'Removed from your library.' });
+    const res = await run(() => api.removeLibraryItem(item.id), { success: 'Removed from your library.' });
     if (res.ok) onClose();
   };
 

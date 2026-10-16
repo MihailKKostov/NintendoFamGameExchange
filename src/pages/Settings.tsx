@@ -1,14 +1,16 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Check, ImagePlus, LogOut, Moon, Monitor, ShieldCheck, Sun, Trash2 } from 'lucide-react';
+import { Camera, Check, ImagePlus, LogOut, Moon, Monitor, Sun, Trash2, UserCog } from 'lucide-react';
 import { api } from '../api';
 import { Avatar } from '../components/Avatar';
+import { OpenAiKeyPanel } from '../components/OpenAiKeyPanel';
 import { Field, PageLoader, Segmented, Spinner, Toggle } from '../components/ui';
 import { config } from '../config';
 import { squareAvatar } from '../lib/image';
 import { play } from '../lib/sounds';
 import { useAuth } from '../state/auth';
-import { useAction, useFamily } from '../state/data';
+import { useAction } from '../state/data';
+import { useFamilies } from '../state/families';
 import { useSettings, type ThemePref } from '../state/settings';
 import { useToast } from '../state/toast';
 
@@ -23,10 +25,9 @@ function normalizeFriendCode(v: string): string {
 }
 
 function ProfileEditor() {
-  const family = useFamily();
   const toast = useToast();
   const { run, busy } = useAction();
-  const me = family.me!;
+  const me = useFamilies().me!;
   const [displayNameV, setDisplayName] = useState(me.display_name);
   const [nickname, setNickname] = useState(me.nickname ?? '');
   const [bio, setBio] = useState(me.bio ?? '');
@@ -177,12 +178,12 @@ function ProfileEditor() {
 }
 
 export function Settings() {
-  const family = useFamily();
-  const { signOut, isAdmin, session } = useAuth();
+  const { me, current } = useFamilies();
+  const { signOut, session } = useAuth();
   const { theme, setTheme, sounds, setSounds } = useSettings();
   const { run } = useAction();
 
-  if (family.loading || !family.me) return <PageLoader />;
+  if (!me) return <PageLoader />;
 
   return (
     <div className="page">
@@ -215,11 +216,19 @@ export function Settings() {
         </div>
         <Toggle checked={sounds} onChange={setSounds} label="Menu sounds" description="Little clicks and chimes as you move around." />
         <Toggle
-          checked={family.me.email_notifications}
+          checked={me.email_notifications !== false}
           onChange={(v) => run(() => api.updateMyProfile({ email_notifications: v }), { success: v ? 'Email notifications on.' : 'Email notifications off.' })}
           label="Email notifications"
           description={`Requests, answers and comments are emailed to ${session?.email}.`}
         />
+      </section>
+
+      <section className="panel settings-list" id="scanning">
+        <h2 className="panel-title">
+          <Camera size={20} /> Screenshot scanning
+        </h2>
+        <p className="muted small bottom-gap">Optional: let the AI find games in a photo or screenshot of your game list.</p>
+        <OpenAiKeyPanel />
       </section>
 
       <section className="panel settings-list">
@@ -233,14 +242,14 @@ export function Settings() {
             <LogOut size={18} /> Sign out
           </button>
         </div>
-        {isAdmin && (
+        {current && (
           <div className="setting">
             <span className="toggle-text">
-              <span className="toggle-label">Family admin</span>
-              <span className="toggle-desc">Invite or remove people.</span>
+              <span className="toggle-label">{current.name}</span>
+              <span className="toggle-desc">Members, invites and family details.</span>
             </span>
-            <Link to="/admin" className="btn btn-secondary">
-              <ShieldCheck size={18} /> Manage invites
+            <Link to="/family" className="btn btn-secondary">
+              <UserCog size={18} /> Family settings
             </Link>
           </div>
         )}

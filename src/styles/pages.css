@@ -2253,3 +2253,296 @@
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+
+/* ==========================================================================
+   Families: badge, switcher, onboarding, settings
+   ========================================================================== */
+.family-badge {
+  display: inline-grid;
+  place-items: center;
+  flex: none;
+  border-radius: 30%;
+  color: #fff;
+  line-height: 1;
+  box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.25), 0 2px 6px rgba(0, 0, 0, 0.12);
+  background-image: linear-gradient(135deg, rgba(255, 255, 255, 0.28), transparent 60%);
+}
+.topbar-left {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-width: 0;
+}
+.famswitch {
+  position: relative;
+  min-width: 0;
+}
+.famswitch-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  max-width: 100%;
+  min-height: 42px;
+  padding: 4px 12px 4px 5px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--surface);
+  box-shadow: inset 0 0 0 2px var(--border), var(--shadow-1);
+  font-weight: 800;
+  font-size: 14.5px;
+  color: var(--text);
+  transition: box-shadow 0.15s, transform 0.18s var(--ease-bounce);
+}
+.famswitch-btn:hover,
+.famswitch-btn.active {
+  box-shadow: inset 0 0 0 2px var(--cyan), 0 4px 14px rgba(0, 195, 227, 0.18);
+}
+.famswitch-btn:active {
+  transform: scale(0.97);
+}
+.famswitch-name {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 220px;
+}
+@media (max-width: 560px) {
+  .famswitch-name {
+    max-width: 110px;
+  }
+  .topbar-left {
+    gap: 8px;
+  }
+}
+.popover {
+  position: absolute;
+  top: calc(100% + 10px);
+  left: 0;
+  z-index: 80;
+  width: min(340px, calc(100vw - 24px));
+  padding: 8px;
+  border-radius: var(--radius-l);
+  background: var(--surface);
+  box-shadow: var(--shadow-3);
+  animation: modal-in 0.22s var(--ease-bounce);
+}
+@media (max-width: 560px) {
+  .popover {
+    position: fixed;
+    top: calc(var(--topbar-h) + 6px);
+    left: 12px;
+    right: 12px;
+    width: auto;
+  }
+}
+.popover-label {
+  padding: 8px 10px 4px;
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-3);
+}
+.popover-sep {
+  height: 1px;
+  margin: 6px 4px;
+  background: var(--border);
+}
+.famswitch-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 8px 10px;
+  border: 0;
+  border-radius: 14px;
+  background: transparent;
+  text-align: left;
+  color: var(--text);
+  transition: background 0.12s;
+}
+.famswitch-item:hover {
+  background: var(--surface-2);
+}
+.famswitch-item.on {
+  background: var(--cyan-soft);
+}
+.famswitch-item-text {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+.famswitch-item-text b {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.famswitch-check {
+  color: var(--cyan-text);
+}
+.famswitch-action {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 11px 12px;
+  border-radius: 12px;
+  font-weight: 800;
+  font-size: 14.5px;
+  color: var(--text);
+}
+.famswitch-action:hover {
+  background: var(--surface-2);
+  color: var(--cyan-text);
+}
+
+.page-narrow {
+  max-width: 860px;
+}
+.bottom-gap {
+  margin-bottom: 14px;
+}
+.panel-title svg {
+  vertical-align: -3px;
+  margin-right: 4px;
+  color: var(--text-2);
+}
+.invite-cards {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 10px;
+}
+.invite-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 14px;
+  border-radius: var(--radius);
+  background: var(--surface-2);
+  animation: fade-up 0.3s var(--ease);
+}
+.invite-card-text {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+.create-family {
+  display: grid;
+  grid-template-columns: 240px minmax(0, 1fr);
+  gap: 24px;
+  align-items: start;
+}
+@media (max-width: 720px) {
+  .create-family {
+    grid-template-columns: 1fr;
+  }
+}
+.create-family-preview {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 26px 18px;
+  border-radius: var(--radius-l);
+  background: var(--surface-2);
+  text-align: center;
+  box-shadow: inset 0 6px 0 var(--accent);
+}
+.create-family-preview b {
+  font-size: 20px;
+  overflow-wrap: anywhere;
+}
+.join-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  padding: 40px 24px;
+  text-align: center;
+}
+.join-panel h1 {
+  font-size: clamp(24px, 4vw, 32px);
+}
+.family-hero {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  margin-bottom: 18px;
+}
+.panel.family-hero {
+  margin-bottom: 20px;
+  box-shadow: var(--shadow-1), inset 0 6px 0 var(--accent);
+}
+.family-hero h1 {
+  font-size: clamp(24px, 4vw, 32px);
+}
+.invite-form-row {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+@media (max-width: 480px) {
+  .invite-form-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+
+/* Personal OpenAI key */
+.key-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.key-privacy {
+  display: flex;
+  gap: 10px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: var(--green-soft);
+  font-size: 14px;
+  line-height: 1.5;
+}
+.key-privacy svg {
+  flex: none;
+  margin-top: 2px;
+  color: var(--green);
+}
+.key-extra {
+  justify-content: space-between;
+}
+.key-model {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.key-model .input {
+  width: 160px;
+}
+.key-panel .toggle-label svg {
+  vertical-align: -2px;
+  margin-right: 4px;
+}
+.scan-setup {
+  display: grid;
+  justify-items: center;
+  gap: 6px;
+  text-align: center;
+  padding: 10px 0 4px;
+}
+.scan-setup p {
+  max-width: 460px;
+}
+.sent-icon {
+  display: grid;
+  place-items: center;
+  width: 84px;
+  height: 84px;
+  border-radius: 50%;
+  background: var(--cyan-soft);
+  color: var(--cyan-text);
+  animation: pop-in 0.4s var(--ease-bounce);
+}

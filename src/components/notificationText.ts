@@ -16,6 +16,8 @@ export function notificationText(kind: string, actor: string, game: string): str
       return `${actor} commented on ${game}`;
     case 'loan_due_changed':
       return `${actor} changed the due date for ${game}`;
+    case 'member_joined':
+      return `${actor} joined the family 👋`;
     default:
       return `${actor} updated ${game}`;
   }

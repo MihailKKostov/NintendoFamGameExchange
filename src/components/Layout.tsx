@@ -1,14 +1,18 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
-import { ArrowLeftRight, Bell, CheckCheck, Gamepad2, House, LayoutGrid, RotateCcw, Settings, Users } from 'lucide-react';
+import {
+  ArrowLeftRight, Bell, Check, CheckCheck, ChevronDown, Gamepad2, House, LayoutGrid, Plus, RotateCcw, Settings, Users,
+  UserCog,
+} from 'lucide-react';
 import { api } from '../api';
 import { resetDemo } from '../api/demoApi';
 import { config } from '../config';
-import { daysUntil, displayName, timeAgo } from '../lib/format';
+import { daysUntil, timeAgo } from '../lib/format';
 import { play } from '../lib/sounds';
+import { qk, useFamily, useNotifications } from '../state/data';
+import { useFamilies } from '../state/families';
 import { useAuth } from '../state/auth';
-import { qk, useAction, useFamily, useNotifications } from '../state/data';
 import { Avatar } from './Avatar';
 import { Logo } from './Logo';
 import { notificationText } from './notificationText';
@@ -26,16 +30,10 @@ function Clock() {
   );
 }
 
-function NotificationsMenu() {
-  const { data = [] } = useNotifications();
-  const family = useFamily();
-  const navigate = useNavigate();
-  const { run } = useAction();
-  const qc = useQueryClient();
+/** Small popover that closes on outside click / Escape. */
+function usePopover() {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
-  const unread = data.filter((n) => !n.read_at).length;
-
   useEffect(() => {
     if (!open) return;
     const onDown = (e: MouseEvent) => {
@@ -49,11 +47,89 @@ function NotificationsMenu() {
       document.removeEventListener('keydown', onKey);
     };
   }, [open]);
+  return { open, setOpen, ref };
+}
 
-  const loanGame = (loanId: string | null) => {
-    const loan = family.loans.find((l) => l.id === loanId);
-    return loan ? family.gameById.get(loan.game_id) : undefined;
-  };
+export function FamilyBadge({ emoji, color, size = 36 }: { emoji: string; color: string; size?: number }) {
+  return (
+    <span className="family-badge" style={{ width: size, height: size, fontSize: size * 0.52, background: color }} aria-hidden="true">
+      {emoji || '🏠'}
+    </span>
+  );
+}
+
+function FamilySwitcher() {
+  const { families, current, switchFamily, isAdmin } = useFamilies();
+  const navigate = useNavigate();
+  const { open, setOpen, ref } = usePopover();
+  if (!current) return null;
+  return (
+    <div className="famswitch" ref={ref}>
+      <button
+        type="button"
+        className={`famswitch-btn${open ? ' active' : ''}`}
+        aria-expanded={open}
+        aria-label={`Family: ${current.name}. Switch family`}
+        onClick={() => {
+          play(open ? 'back' : 'pop');
+          setOpen(!open);
+        }}
+      >
+        <FamilyBadge emoji={current.emoji} color={current.color} size={30} />
+        <span className="famswitch-name">{current.name}</span>
+        <ChevronDown size={16} />
+      </button>
+      {open && (
+        <div className="popover famswitch-panel" role="menu">
+          <p className="popover-label">Your families</p>
+          {families.map((f) => (
+            <button
+              key={f.id}
+              type="button"
+              role="menuitemradio"
+              aria-checked={f.id === current.id}
+              className={`famswitch-item${f.id === current.id ? ' on' : ''}`}
+              onClick={() => {
+                setOpen(false);
+                if (f.id !== current.id) {
+                  switchFamily(f.id);
+                  navigate('/');
+                  play('select');
+                }
+              }}
+            >
+              <FamilyBadge emoji={f.emoji} color={f.color} size={34} />
+              <span className="famswitch-item-text">
+                <b>{f.name}</b>
+                <span className="muted small">{f.member_ids.length} member{f.member_ids.length === 1 ? '' : 's'}</span>
+              </span>
+              {f.id === current.id && <Check size={18} className="famswitch-check" />}
+            </button>
+          ))}
+          <div className="popover-sep" />
+          <Link to="/family" className="famswitch-action" onClick={() => setOpen(false)}>
+            <UserCog size={18} /> {isAdmin ? 'Family settings & invites' : 'Family settings'}
+          </Link>
+          <Link to="/families/new" className="famswitch-action" onClick={() => setOpen(false)}>
+            <Plus size={18} /> Create or join a family
+          </Link>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function NotificationsMenu() {
+  const { data = [] } = useNotifications();
+  const { families, current, switchFamily } = useFamilies();
+  const { session } = useAuth();
+  const navigate = useNavigate();
+  const qc = useQueryClient();
+  const { open, setOpen, ref } = usePopover();
+  const unread = data.filter((n) => !n.read_at).length;
+  const familyById = new Map(families.map((f) => [f.id, f]));
+  const many = families.length > 1;
+  const refresh = () => qc.invalidateQueries({ queryKey: qk.notifications(session?.userId ?? '') });
 
   return (
     <div className="notif" ref={ref}>
@@ -75,7 +151,7 @@ function NotificationsMenu() {
           <div className="notif-head">
             <h3>Notifications</h3>
             {unread > 0 && (
-              <button type="button" className="btn btn-ghost btn-sm" onClick={() => run(() => api.markNotificationsRead())}>
+              <button type="button" className="btn btn-ghost btn-sm" onClick={() => void api.markNotificationsRead().then(refresh)}>
                 <CheckCheck size={16} /> Mark all read
               </button>
             )}
@@ -85,8 +161,7 @@ function NotificationsMenu() {
           ) : (
             <ul className="notif-list">
               {data.slice(0, 30).map((n) => {
-                const actor = family.profileById.get(n.actor_id ?? '');
-                const game = loanGame(n.loan_id);
+                const fam = familyById.get(n.family_id);
                 return (
                   <li key={n.id}>
                     <button
@@ -94,15 +169,19 @@ function NotificationsMenu() {
                       className={`notif-item${n.read_at ? '' : ' unread'}`}
                       onClick={() => {
                         setOpen(false);
-                        if (!n.read_at) void api.markNotificationsRead([n.id]).then(() => qc.invalidateQueries({ queryKey: qk.notifications }));
-                        if (n.loan_id) navigate(`/loans/${n.loan_id}`);
+                        if (!n.read_at) void api.markNotificationsRead([n.id]).then(refresh);
+                        if (fam && fam.id !== current?.id) switchFamily(fam.id);
+                        navigate(n.loan_id ? `/loans/${n.loan_id}` : n.kind === 'member_joined' ? '/members' : '/');
                       }}
                     >
-                      <Avatar profile={actor} size={38} />
+                      {fam ? <FamilyBadge emoji={fam.emoji} color={fam.color} size={38} /> : <span className="family-badge" style={{ width: 38, height: 38 }} />}
                       <span className="notif-text">
-                        <span>{notificationText(n.kind, displayName(actor), game?.title ?? 'a game')}</span>
+                        <span>{notificationText(n.kind, n.actor_name ?? 'Someone', n.game_title ?? 'a game')}</span>
                         {n.body && <span className="notif-body">“{n.body}”</span>}
-                        <span className="notif-time">{timeAgo(n.created_at)}</span>
+                        <span className="notif-time">
+                          {many && fam ? `${fam.name} · ` : ''}
+                          {timeAgo(n.created_at)}
+                        </span>
                       </span>
                       {!n.read_at && <i className="notif-dot" aria-label="unread" />}
                     </button>
@@ -117,29 +196,36 @@ function NotificationsMenu() {
   );
 }
 
-function DemoBanner() {
-  const family = useFamily();
-  const { refresh } = useAuth();
+const DEMO_PEOPLE = [
+  ['maya@demo.family', 'Mom (Maya)'],
+  ['alex@demo.family', 'Dad (Alex)'],
+  ['leo@demo.family', 'Leo'],
+  ['zoe@demo.family', 'Auntie Zo'],
+];
+
+export function DemoBanner() {
+  const { session } = useAuth();
   const [busy, setBusy] = useState(false);
+  const known = DEMO_PEOPLE.some(([e]) => e === session?.email);
   return (
     <div className="demo-banner" role="note">
       <span className="demo-tag">DEMO</span>
-      <span className="demo-text">Sample data stored only in this browser. Try switching person to test lending:</span>
+      <span className="demo-text">Sample data stored only in this browser. Switch person to test lending:</span>
       <select
         aria-label="Switch person"
-        value={family.me?.email ?? ''}
+        value={session?.email ?? ''}
         disabled={busy}
         onChange={async (e) => {
           setBusy(true);
-          await api.verifyLoginCode(e.target.value, '000000');
-          await refresh();
+          await api.sendLoginLink(e.target.value);
           setBusy(false);
           play('select');
         }}
       >
-        {family.members.map((m) => (
-          <option key={m.id} value={m.email}>
-            {displayName(m)} ({m.email})
+        {!known && session && <option value={session.email}>{session.email}</option>}
+        {DEMO_PEOPLE.map(([email, label]) => (
+          <option key={email} value={email}>
+            {label} ({email})
           </option>
         ))}
       </select>
@@ -147,6 +233,29 @@ function DemoBanner() {
         <RotateCcw size={14} /> Reset
       </button>
     </div>
+  );
+}
+
+export function Topbar({ children }: { children?: ReactNode }) {
+  const { me } = useFamilies();
+  return (
+    <header className="topbar">
+      <div className="topbar-inner">
+        <div className="topbar-left">
+          <Link to="/" className="topbar-logo" aria-label="Home">
+            <Logo size="sm" />
+          </Link>
+          {children}
+        </div>
+        <div className="topbar-right">
+          <Clock />
+          <NotificationsMenu />
+          <Link to="/settings" className="topbar-me" aria-label="Your profile">
+            <Avatar profile={me} size={40} />
+          </Link>
+        </div>
+      </div>
+    </header>
   );
 }
 
@@ -181,20 +290,9 @@ export function Layout() {
   return (
     <div className="shell">
       {config.demo && <DemoBanner />}
-      <header className="topbar">
-        <div className="topbar-inner">
-          <Link to="/" className="topbar-logo" aria-label="Home">
-            <Logo size="sm" />
-          </Link>
-          <div className="topbar-right">
-            <Clock />
-            <NotificationsMenu />
-            <Link to="/settings" className="topbar-me" aria-label="Your profile">
-              <Avatar profile={family.me} size={40} />
-            </Link>
-          </div>
-        </div>
-      </header>
+      <Topbar>
+        <FamilySwitcher />
+      </Topbar>
 
       <main className="main" key={location.pathname}>
         <Outlet />

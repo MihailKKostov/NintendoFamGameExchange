@@ -72,7 +72,7 @@ export function LoanPage() {
   const sendComment = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!comment.trim()) return;
-    const res = await run(() => api.commentOnLoan(loan.id, comment), { emails: true });
+    const res = await run(() => api.commentOnLoan(loan.id, comment));
     if (res.ok) setComment('');
   };
 
@@ -170,7 +170,7 @@ export function LoanPage() {
                 type="button"
                 className="btn btn-secondary"
                 disabled={busy}
-                onClick={() => run(() => api.cancelLoanRequest(loan.id, ''), { emails: true, success: 'Request cancelled.' })}
+                onClick={() => run(() => api.cancelLoanRequest(loan.id, ''), { success: 'Request cancelled.' })}
               >
                 <X size={18} /> Cancel request
               </button>

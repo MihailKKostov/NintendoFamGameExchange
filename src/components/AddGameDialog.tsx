@@ -3,6 +3,7 @@ import { Camera, CircleCheck, ClipboardPaste, ImagePlus, PenLine, RefreshCw, Sea
 import { api } from '../api';
 import { config } from '../config';
 import { screenshotDataUrl } from '../lib/image';
+import { recognizeWithOpenAi } from '../lib/openai';
 import { cleanTitle, hitToGame, matchTitle, type CatalogHit } from '../lib/nintendo';
 import { play } from '../lib/sounds';
 import { useAction, useFamily } from '../state/data';
@@ -11,6 +12,7 @@ import type { DetectedGame, GameCondition, GameFormat, GameInput } from '../type
 import { GameFacts } from './GameFacts';
 import { GameIcon } from './GameIcon';
 import { GameSearch } from './GameSearch';
+import { OpenAiKeyPanel, useOpenAiKey } from './OpenAiKeyPanel';
 import { Field, Modal, Segmented, Spinner } from './ui';
 
 type Tab = 'search' | 'scan' | 'manual';
@@ -82,8 +84,19 @@ interface ScanRow {
   choice: number; // index into candidates, -1 = skip
 }
 
+/** Demo mode without a key: pretend we recognised a few games. */
+async function simulatedScan(): Promise<DetectedGame[]> {
+  await new Promise((r) => setTimeout(r, 1600));
+  return [
+    { title: 'Mario Kart 8 Deluxe', platform: 'Nintendo Switch', confidence: 0.97 },
+    { title: 'Celeste', platform: 'Nintendo Switch', confidence: 0.88 },
+    { title: 'Super Mario Party Jamboree', platform: 'Nintendo Switch', confidence: 0.81 },
+  ];
+}
+
 function ScanTab({ onDone }: { onDone: () => void }) {
   const family = useFamily();
+  const key = useOpenAiKey();
   const toast = useToast();
   const { run, busy } = useAction();
   const [image, setImage] = useState<string | null>(null);
@@ -130,7 +143,9 @@ function ScanTab({ onDone }: { onDone: () => void }) {
     if (!image) return;
     setPhase('scanning');
     try {
-      const detected = await api.recognizeGames(image);
+      const detected: DetectedGame[] = key
+        ? await recognizeWithOpenAi(image)
+        : await simulatedScan();
       setPhase('matching');
       const matched = await Promise.all(
         detected.map(async (d) => {
@@ -248,8 +263,24 @@ function ScanTab({ onDone }: { onDone: () => void }) {
     );
   }
 
+  if (!key && !config.demo) {
+    return (
+      <div className="tab-pane">
+        <div className="scan-setup">
+          <span className="dropzone-icon">
+            <Sparkles size={30} />
+          </span>
+          <h3>Scan screenshots with AI</h3>
+          <p className="muted">Snap your console’s game list or a shelf of cases, and we’ll find the games for you. This uses your own OpenAI API key.</p>
+        </div>
+        <OpenAiKeyPanel compact />
+      </div>
+    );
+  }
+
   return (
     <div className="tab-pane">
+      {!key && <OpenAiKeyPanel compact />}
       {image ? (
         <div className="scan-preview">
           <img src={image} alt="Your screenshot" />
@@ -306,9 +337,9 @@ function ScanTab({ onDone }: { onDone: () => void }) {
         </button>
       </div>
       <p className="muted small center">
-        {config.demo
-          ? 'Demo mode simulates the scan. With the backend connected, images are analysed with the OpenAI API.'
-          : 'The image is sent to the OpenAI API to recognise game titles; it isn’t stored.'}
+        {key
+          ? 'Your image goes straight from this browser to OpenAI with your own key — nothing is stored.'
+          : 'Demo mode: this is a simulated scan. Add your OpenAI key above for real recognition.'}
       </p>
     </div>
   );

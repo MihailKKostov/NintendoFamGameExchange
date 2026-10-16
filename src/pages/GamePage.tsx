@@ -64,7 +64,7 @@ function CopyRow({ copy, game }: { copy: CopyInfo; game: Game }) {
             <button
               type="button"
               className="btn btn-ghost"
-              onClick={() => run(() => api.cancelLoanRequest(copy.myRequest!.id, ''), { emails: true, success: 'Request cancelled.' })}
+              onClick={() => run(() => api.cancelLoanRequest(copy.myRequest!.id, ''), { success: 'Request cancelled.' })}
             >
               Cancel
             </button>

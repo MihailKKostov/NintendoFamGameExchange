@@ -1,33 +1,36 @@
 import { Link } from 'react-router-dom';
-import { Mail, ShieldCheck, UserPlus } from 'lucide-react';
+import { Crown, Mail, Settings2, ShieldCheck, UserPlus } from 'lucide-react';
 import { Avatar } from '../components/Avatar';
 import { GameIcon } from '../components/GameIcon';
 import { PageLoader } from '../components/ui';
 import { displayName } from '../lib/format';
-import { useAuth } from '../state/auth';
-import { useFamily } from '../state/data';
+import { useFamily, useFamilyInvites } from '../state/data';
+import { useFamilies } from '../state/families';
 
 export function Members() {
   const family = useFamily();
-  const { isAdmin } = useAuth();
-  if (family.loading) return <PageLoader />;
-
-  const joinedEmails = new Set(family.profiles.map((p) => p.email));
-  const pendingInvites = family.invites.filter((i) => !joinedEmails.has(i.email));
-  const adminEmails = new Set(family.invites.filter((i) => i.is_admin).map((i) => i.email));
+  const { current, isAdmin } = useFamilies();
+  const invites = useFamilyInvites(isAdmin);
+  if (family.loading || !current) return <PageLoader />;
+  const pendingInvites = isAdmin ? invites.data ?? [] : [];
 
   return (
     <div className="page">
       <header className="page-head">
         <div>
-          <h1>Family</h1>
+          <h1>{current.name}</h1>
           <p className="muted">Everyone who shares games here. Tap someone to see their library.</p>
         </div>
-        {isAdmin && (
-          <Link to="/admin" className="btn btn-primary">
-            <UserPlus size={20} /> Invite people
+        <div className="row gap wrap">
+          <Link to="/family" className="btn btn-secondary">
+            <Settings2 size={20} /> Family settings
           </Link>
-        )}
+          {isAdmin && (
+            <Link to="/family" className="btn btn-primary">
+              <UserPlus size={20} /> Invite people
+            </Link>
+          )}
+        </div>
       </header>
 
       <div className="member-grid">
@@ -42,7 +45,11 @@ export function Members() {
               <Avatar profile={m} size={84} />
               <span className="member-card-name">
                 {displayName(m)}
-                {adminEmails.has(m.email) && <ShieldCheck size={16} className="admin-badge" aria-label="Admin" />}
+                {m.id === current.owner_id ? (
+                  <Crown size={16} className="admin-badge" aria-label="Owner" />
+                ) : (
+                  current.admin_ids.includes(m.id) && <ShieldCheck size={16} className="admin-badge" aria-label="Admin" />
+                )}
               </span>
               {m.nickname && m.nickname !== m.display_name && <span className="muted small">{m.display_name}</span>}
               {m.id === family.meId && <span className="pill pill-neutral">You</span>}
@@ -71,8 +78,8 @@ export function Members() {
                   <Mail size={18} />
                 </span>
                 <span>
-                  <b>{i.note || i.email}</b>
-                  {i.note && <span className="muted small"> · {i.email}</span>}
+                  <b>{i.email}</b>
+                  <span className="muted small"> · invited by {i.invited_by_name}</span>
                 </span>
               </li>
             ))}

@@ -1,9 +1,0 @@
-# Minimal Supabase CLI config — used by `supabase link` / `supabase db push` /
-# `supabase functions deploy`. Both functions require a signed-in user's JWT.
-project_id = "family-game-exchange"
-
-[functions.recognize-games]
-verify_jwt = true
-
-[functions.send-notifications]
-verify_jwt = true

@@ -28,9 +28,8 @@ jobs:
         run: npm run build
         env:
           BASE_PATH: /${{ github.event.repository.name }}/
-          VITE_SUPABASE_URL: ${{ vars.SUPABASE_URL }}
-          VITE_SUPABASE_ANON_KEY: ${{ vars.SUPABASE_ANON_KEY }}
-          VITE_ENABLE_GOOGLE: ${{ vars.ENABLE_GOOGLE }}
+          VITE_FIREBASE_CONFIG: ${{ vars.FIREBASE_CONFIG }}
+          VITE_FIREBASE_FUNCTIONS_REGION: ${{ vars.FIREBASE_FUNCTIONS_REGION }}
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist
