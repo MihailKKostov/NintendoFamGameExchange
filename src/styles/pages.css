@@ -2686,3 +2686,231 @@
   fill: #ffb000;
   filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.3));
 }
+
+/* ==========================================================================
+   Game page — store price, trailers & screenshots
+   ========================================================================== */
+.price-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.16);
+  backdrop-filter: blur(8px);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.28);
+  font-weight: 900;
+  font-size: 15px;
+}
+.media-panel {
+  padding-bottom: 16px;
+}
+.media-stage,
+.media-thumbs {
+  max-width: min(100%, calc(58vh * 16 / 9));
+  margin-inline: auto;
+}
+.media-stage {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  border-radius: var(--radius);
+  overflow: hidden;
+  background: #111;
+  outline: none;
+}
+.media-stage:focus-visible {
+  box-shadow: 0 0 0 3px var(--cyan);
+}
+.media-stage:fullscreen {
+  max-width: none;
+  border-radius: 0;
+  aspect-ratio: auto;
+}
+.media-track {
+  display: flex;
+  height: 100%;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  overscroll-behavior-x: contain;
+}
+.media-track::-webkit-scrollbar {
+  display: none;
+}
+.media-slide {
+  flex: 0 0 100%;
+  height: 100%;
+  scroll-snap-align: center;
+  scroll-snap-stop: always;
+}
+.media-slide img,
+.media-slide video {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  user-select: none;
+  background: #111;
+}
+.media-play {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+}
+.media-play-btn {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  display: grid;
+  place-items: center;
+  width: 76px;
+  height: 76px;
+  border-radius: 50%;
+  background: var(--red);
+  color: #fff;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.45), inset 0 0 0 3px rgba(255, 255, 255, 0.85);
+  transform: translate(-50%, -50%);
+  transition: transform 0.2s var(--ease-bounce), background 0.15s;
+}
+.media-play-btn svg {
+  margin-left: 4px;
+}
+.media-play:hover .media-play-btn,
+.media-play:focus-visible .media-play-btn {
+  background: var(--red-hover);
+  transform: translate(-50%, -50%) scale(1.08);
+}
+.media-nav,
+.media-full {
+  position: absolute;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(20, 20, 20, 0.55);
+  color: #fff;
+  backdrop-filter: blur(6px);
+  cursor: pointer;
+  transition: opacity 0.2s, background 0.15s;
+}
+.media-nav {
+  top: 50%;
+  width: 46px;
+  height: 46px;
+  transform: translateY(-50%);
+}
+.media-prev {
+  left: 12px;
+}
+.media-next {
+  right: 12px;
+}
+.media-nav:hover:not(:disabled),
+.media-full:hover {
+  background: rgba(20, 20, 20, 0.8);
+}
+.media-nav:disabled {
+  opacity: 0;
+  pointer-events: none;
+}
+.media-full {
+  top: 12px;
+  right: 12px;
+  width: 38px;
+  height: 38px;
+}
+.media-count {
+  position: absolute;
+  left: 12px;
+  bottom: 12px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: rgba(20, 20, 20, 0.55);
+  color: #fff;
+  font-size: 12.5px;
+  font-weight: 800;
+  pointer-events: none;
+}
+@media (hover: none) {
+  .media-nav {
+    display: none;
+  }
+}
+.media-thumbs {
+  display: flex;
+  gap: 10px;
+  margin-top: 12px;
+  padding: 4px 2px;
+  overflow-x: auto;
+  scrollbar-width: thin;
+}
+.media-thumb {
+  position: relative;
+  flex: none;
+  width: 128px;
+  aspect-ratio: 16 / 9;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-s);
+  overflow: hidden;
+  background: var(--surface-3);
+  cursor: pointer;
+  opacity: 0.6;
+  box-shadow: inset 0 0 0 1px var(--border);
+  transition: opacity 0.15s, box-shadow 0.15s;
+}
+.media-thumb img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.media-thumb:hover,
+.media-thumb.on {
+  opacity: 1;
+}
+.media-thumb.on {
+  box-shadow: 0 0 0 3px var(--cyan);
+}
+.media-thumb-play {
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--red);
+  color: #fff;
+}
+.media-thumb-play svg {
+  margin-left: 2px;
+}
+.media-skeleton {
+  background: linear-gradient(90deg, var(--surface-2) 0, var(--surface-3) 50%, var(--surface-2) 100%);
+  background-size: 800px 100%;
+  animation: shimmer 1.4s linear infinite;
+}
+@media (max-width: 560px) {
+  .media-summary {
+    display: none;
+  }
+  .media-panel .media-stage {
+    max-width: none;
+    margin: 0 -16px;
+    border-radius: 0;
+  }
+  .media-thumb {
+    width: 104px;
+  }
+  .media-play-btn {
+    width: 62px;
+    height: 62px;
+  }
+}

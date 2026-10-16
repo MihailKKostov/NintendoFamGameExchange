@@ -1,17 +1,22 @@
 import { useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import { ArrowLeft, ExternalLink, Gift, Hand, Pencil, Plus } from 'lucide-react';
+import { ArrowLeft, ExternalLink, Gift, Hand, Pencil, Plus, Tag } from 'lucide-react';
 import { api } from '../api';
 import { Avatar } from '../components/Avatar';
 import { GameFacts } from '../components/GameFacts';
 import { GameIcon } from '../components/GameIcon';
 import { conditionLabel, ItemDialog, LendDialog, RequestDialog } from '../components/LoanDialogs';
 import { CopyStatePill } from '../components/Status';
+import { StoreGallery, StoreGallerySkeleton } from '../components/StoreGallery';
 import { EmptyState, PageLoader } from '../components/ui';
 import { displayName, dueLabel, formatDate } from '../lib/format';
 import { copyState, type CopyInfo } from '../lib/library';
+import { dekuDealsUrl, fetchStoreDetails } from '../lib/nintendo';
 import { useAction, useFamily } from '../state/data';
 import type { Game } from '../types';
+
+const usd = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' });
 
 function CopyRow({ copy, game }: { copy: CopyInfo; game: Game }) {
   const family = useFamily();
@@ -111,6 +116,15 @@ export function GamePage() {
   const { run, busy } = useAction();
   const entry = family.entryByGame.get(gameId);
   const game = entry?.game ?? family.gameById.get(gameId);
+  const store = useQuery({
+    queryKey: ['store-details', game?.nsuid ?? null, game?.title ?? ''],
+    queryFn: ({ signal }) => fetchStoreDetails(game!, signal),
+    enabled: !!game && game.source !== 'manual',
+    staleTime: 24 * 60 * 60_000,
+    gcTime: 60 * 60_000,
+    refetchOnWindowFocus: false,
+  });
+  const basePrice = store.data?.basePrice;
 
   if (family.loading) return <PageLoader />;
   if (!game) {
@@ -148,12 +162,20 @@ export function GamePage() {
             <p className="game-hero-sub">
               {[game.publisher, game.release_date?.slice(0, 4)].filter(Boolean).join(' · ')}
             </p>
+            {basePrice != null && (
+              <span className="price-chip" title="Regular price on the US Nintendo eShop">
+                <Tag size={15} /> {usd.format(basePrice)}
+              </span>
+            )}
             <div className="row gap wrap">
               {game.store_url && (
                 <a href={game.store_url} target="_blank" rel="noreferrer" className="btn btn-glass btn-sm">
                   <ExternalLink size={16} /> Nintendo.com
                 </a>
               )}
+              <a href={dekuDealsUrl(game.title)} target="_blank" rel="noreferrer" className="btn btn-glass btn-sm">
+                <ExternalLink size={16} /> Deku Deals
+              </a>
               <button
                 type="button"
                 className="btn btn-glass btn-sm"
@@ -166,6 +188,12 @@ export function GamePage() {
           </div>
         </div>
       </section>
+
+      {store.isPending && store.fetchStatus !== 'idle' ? (
+        <StoreGallerySkeleton />
+      ) : store.data?.media.length ? (
+        <StoreGallery media={store.data.media} title={game.title} />
+      ) : null}
 
       <div className="game-layout">
         <section className="panel">
@@ -186,7 +214,10 @@ export function GamePage() {
 
         <section className="panel">
           <h2 className="panel-title">About this game</h2>
-          <GameFacts game={game} />
+          <GameFacts
+            game={game}
+            extra={basePrice != null ? [['Base price', <>{usd.format(basePrice)} <span className="muted small">US eShop</span></>]] : []}
+          />
           {game.description && <p className="game-desc">{game.description}</p>}
         </section>
       </div>
