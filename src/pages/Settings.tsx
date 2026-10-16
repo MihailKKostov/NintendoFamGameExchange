@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { Camera, Check, ImagePlus, LogOut, Moon, Monitor, Sun, Trash2, UserCog } from 'lucide-react';
 import { api } from '../api';
 import { Avatar } from '../components/Avatar';
+import { FavoritesPanel } from '../components/FavoritesPicker';
 import { OpenAiKeyPanel } from '../components/OpenAiKeyPanel';
 import { Field, PageLoader, Segmented, Spinner, Toggle } from '../components/ui';
 import { config } from '../config';
@@ -195,6 +196,8 @@ export function Settings() {
       </header>
 
       <ProfileEditor />
+
+      {current && <FavoritesPanel />}
 
       <section className="panel settings-list">
         <h2 className="panel-title">Preferences</h2>

@@ -45,7 +45,13 @@ service cloud.firestore {
 
       match /members/{uid} {
         allow read: if isMember(fid);
-        allow write: if false;
+        // You may only pick your own favourite games (max 5); everything else
+        // on a member record is managed by Cloud Functions.
+        allow update: if isMember(fid) && request.auth.uid == uid
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['favorite_game_ids'])
+          && request.resource.data.favorite_game_ids is list
+          && request.resource.data.favorite_game_ids.size() <= 5;
+        allow create, delete: if false;
       }
       match /games/{gid} {
         allow read: if isMember(fid);

@@ -75,6 +75,24 @@ export function buildEntries(
   return [...byGame.values()];
 }
 
+/**
+ * A member's favourite games (in their chosen order), limited to games they
+ * still own in this family. Empty when they haven't picked any.
+ */
+export function favoriteGames(
+  member: { id: string; favorite_game_ids?: string[] } | undefined,
+  items: LibraryItem[],
+  gameById: Map<string, Game>,
+): Game[] {
+  if (!member?.favorite_game_ids?.length) return [];
+  const owned = new Set(items.filter((i) => i.owner_id === member.id).map((i) => i.game_id));
+  return member.favorite_game_ids
+    .filter((id) => owned.has(id))
+    .map((id) => gameById.get(id))
+    .filter((g): g is Game => !!g)
+    .slice(0, 5);
+}
+
 // ---------------------------------------------------------------------------
 // Filtering
 // ---------------------------------------------------------------------------

@@ -145,6 +145,8 @@ export interface Member extends Profile {
   role: Role;
   status: 'active' | 'removed';
   joined_at: string;
+  /** Up to 5 game ids from your library in this family, shown on your profile card. */
+  favorite_game_ids?: string[];
 }
 
 export interface Invite {

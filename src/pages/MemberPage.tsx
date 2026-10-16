@@ -1,11 +1,12 @@
 import { useMemo } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { ArrowLeftRight, Copy, Gift, Package, Pencil } from 'lucide-react';
+import { ArrowLeftRight, ChevronRight, Copy, Gift, Package, Pencil, Star } from 'lucide-react';
 import { Avatar } from '../components/Avatar';
+import { FavoriteSlots } from '../components/FavoritesPicker';
 import { LibraryBrowser } from '../components/LibraryBrowser';
 import { EmptyState, PageLoader } from '../components/ui';
 import { displayName, formatDate } from '../lib/format';
-import { buildEntries } from '../lib/library';
+import { buildEntries, favoriteGames } from '../lib/library';
 import { useFamily } from '../state/data';
 import { useToast } from '../state/toast';
 import { LoanRow } from './Loans';
@@ -30,6 +31,7 @@ export function MemberPage() {
   }
 
   const isMe = person.id === family.meId;
+  const favorites = favoriteGames(person, family.items, family.gameById);
   const between = family.loans.filter(
     (l) =>
       !isMe &&
@@ -79,6 +81,22 @@ export function MemberPage() {
           <div><ArrowLeftRight size={16} /><b>{shared}</b><span>times shared</span></div>
         </div>
       </section>
+
+      {favorites.length > 0 && (
+        <section className="section">
+          <div className="section-head">
+            <h2 className="fav-title">
+              <Star size={20} /> {isMe ? 'Your favourites' : `${displayName(person)}’s favourites`}
+            </h2>
+            {isMe && (
+              <Link to="/settings" className="section-link">
+                Change <ChevronRight size={18} />
+              </Link>
+            )}
+          </div>
+          <FavoriteSlots games={favorites} />
+        </section>
+      )}
 
       {between.length > 0 && (
         <section className="section">
