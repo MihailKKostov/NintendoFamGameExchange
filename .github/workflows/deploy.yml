@@ -24,12 +24,22 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
+      - name: Check the Firebase config is set
+        env:
+          FIREBASE_CONFIG: ${{ vars.FIREBASE_CONFIG }}
+          DEMO: ${{ vars.DEMO }}
+        run: |
+          if [ -z "$FIREBASE_CONFIG" ] && [ "$DEMO" != "true" ]; then
+            echo "::error title=Missing FIREBASE_CONFIG::Add the FIREBASE_CONFIG repository variable (Settings → Secrets and variables → Actions → Variables). See README."
+            exit 1
+          fi
       - name: Build
         run: npm run build
         env:
           BASE_PATH: /${{ github.event.repository.name }}/
           VITE_FIREBASE_CONFIG: ${{ vars.FIREBASE_CONFIG }}
           VITE_FIREBASE_FUNCTIONS_REGION: ${{ vars.FIREBASE_FUNCTIONS_REGION }}
+          VITE_DEMO: ${{ vars.DEMO }}
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist
