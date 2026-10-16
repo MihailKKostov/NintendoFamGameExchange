@@ -1,0 +1,879 @@
+[
+ {
+  "nsuid": "70010000000153",
+  "title": "Mario Kart 8 Deluxe",
+  "icon_url": "https://assets.nintendo.com/image/fetch/q_auto/f_auto/https://atum-img-lp1.cdn.nintendo.net/i/c/27c37ea188df49ecacd786d04df0d3a7_1024",
+  "hero_url": "https://assets.nintendo.com/image/upload/c_fill,w_1240,h_698/f_auto/q_auto/store/software/switch/70010000000153/de697f487a36d802dd9a5ff0341f717c8486221f2f1219b675af37aca63bc453",
+  "platform": "Nintendo Switch",
+  "publisher": "Nintendo",
+  "developer": null,
+  "release_date": "2017-04-28",
+  "genres": [
+   "Party",
+   "Racing"
+  ],
+  "player_count": "4+",
+  "max_players": 4,
+  "multiplayer": true,
+  "local_multiplayer": true,
+  "online_multiplayer": true,
+  "coop": false,
+  "play_modes": [
+   "TV mode",
+   "Tabletop mode",
+   "Handheld mode"
+  ],
+  "ways_to_play": [
+   "Compete online",
+   "Meet up and play together",
+   "Play online with friends",
+   "Play together on multiple consoles",
+   "Play together on one console"
+  ],
+  "esrb_rating": "Everyone",
+  "description": "Race across your favorite tracks with Mario and friends in Mario Kart 8 Deluxe for Nintendo Switch. Enjoy local and online multiplayer racing.",
+  "store_url": "https://www.nintendo.com/us/store/products/mario-kart-8-deluxe-switch/"
+ },
+ {
+  "nsuid": "70010000012332",
+  "title": "Super Smash Bros. Ultimate",
+  "icon_url": "https://assets.nintendo.com/image/fetch/q_auto/f_auto/https://atum-img-lp1.cdn.nintendo.net/i/c/67e9794abb1d43eda8f96f07c4612ece_1024",
+  "hero_url": "https://assets.nintendo.com/image/upload/c_fill,w_1240,h_698/f_auto/q_auto/store/software/switch/70010000012332/ac4d1fc9824876ce756406f0525d50c57ded4b2a666f6dfe40a6ac5c3563fad9",
+  "platform": "Nintendo Switch",
+  "publisher": "Nintendo",
+  "developer": null,
+  "release_date": "2018-12-07",
+  "genres": [
+   "Action",
+   "Fighting",
+   "Party"
+  ],
+  "player_count": "4+",
+  "max_players": 4,
+  "multiplayer": true,
+  "local_multiplayer": true,
+  "online_multiplayer": true,
+  "coop": true,
+  "play_modes": [
+   "TV mode",
+   "Tabletop mode",
+   "Handheld mode"
+  ],
+  "ways_to_play": [
+   "Compete online",
+   "Meet up and play together",
+   "Online co-op",
+   "Play online with friends",
+   "Play together on multiple consoles",
+   "Play together on one console"
+  ],
+  "esrb_rating": "Everyone 10+",
+  "description": null,
+  "store_url": "https://www.nintendo.com/us/store/products/super-smash-bros-ultimate-switch/"
+ },
+ {
+  "nsuid": "70010000063714",
+  "title": "The Legend of Zelda: Tears of the Kingdom",
+  "icon_url": "https://assets.nintendo.com/image/fetch/q_auto/f_auto/https://atum-img-lp1.cdn.nintendo.net/i/c/589e100ec126490fb28d407b7c3b97a0_1024",
+  "hero_url": "https://assets.nintendo.com/image/upload/c_fill,w_1240,h_698/f_auto/q_auto/store/software/switch/70010000063714/fb30eab428df3fc993b41c76e20f72e4d76d49734d17d31996b5ab61c414b117",
+  "platform": "Nintendo Switch",
+  "publisher": "Nintendo",
+  "developer": null,
+  "release_date": "2023-05-12",
+  "genres": [
+   "Action",
+   "Adventure"
+  ],
+  "player_count": "Single player",
+  "max_players": 1,
+  "multiplayer": false,
+  "local_multiplayer": false,
+  "online_multiplayer": false,
+  "coop": false,
+  "play_modes": [
+   "TV mode",
+   "Tabletop mode",
+   "Handheld mode"
+  ],
+  "ways_to_play": [],
+  "esrb_rating": "Everyone 10+",
+  "description": null,
+  "store_url": "https://www.nintendo.com/us/store/products/the-legend-of-zelda-tears-of-the-kingdom-switch/"
+ },
+ {
+  "nsuid": "70010000000025",
+  "title": "The Legend of Zelda: Breath of the Wild",
+  "icon_url": "https://assets.nintendo.com/image/fetch/q_auto/f_auto/https://atum-img-lp1.cdn.nintendo.net/i/c/e43a067ac0de40fb8b555ae5070d7417_1024",
+  "hero_url": "https://assets.nintendo.com/image/upload/c_fill,w_1240,h_698/f_auto/q_auto/store/software/switch/70010000000025/7137262b5a64d921e193653f8aa0b722925abc5680380ca0e18a5cfd91697f58",
+  "platform": "Nintendo Switch",
+  "publisher": "Nintendo",
+  "developer": null,
+  "release_date": "2017-03-03",
+  "genres": [
+   "Action",
+   "Adventure"
+  ],
+  "player_count": "Single player",
+  "max_players": 1,
+  "multiplayer": false,
+  "local_multiplayer": false,
+  "online_multiplayer": false,
+  "coop": false,
+  "play_modes": [
+   "TV mode",
+   "Tabletop mode",
+   "Handheld mode"
+  ],
+  "ways_to_play": [],
+  "esrb_rating": "Everyone 10+",
+  "description": null,
+  "store_url": "https://www.nintendo.com/us/store/products/the-legend-of-zelda-breath-of-the-wild-switch/"
+ },
+ {
+  "nsuid": "70010000027619",
+  "title": "Animal Crossing: New Horizons",
+  "icon_url": "https://assets.nintendo.com/image/fetch/q_auto/f_auto/https://atum-img-lp1.cdn.nintendo.net/i/c/c52f22a9b96f46df91f1a60482ac02e6_1024",
+  "hero_url": "https://assets.nintendo.com/image/upload/c_fill,w_1240,h_698/f_auto/q_auto/store/software/switch/70010000027619/9989957eae3a6b545194c42fec2071675c34aadacd65e6b33fdfe7b3b6a86c3a",
+  "platform": "Nintendo Switch",
+  "publisher": "Nintendo",
+  "developer": null,
+  "release_date": "2020-03-20",
+  "genres": [
+   "Simulation"
+  ],
+  "player_count": "4+",
+  "max_players": 4,
+  "multiplayer": true,
+  "local_multiplayer": true,
+  "online_multiplayer": true,
+  "coop": true,
+  "play_modes": [
+   "TV mode",
+   "Tabletop mode",
+   "Handheld mode"
+  ],
+  "ways_to_play": [
+   "Meet up and play together",
+   "Online co-op",
+   "Play online with friends",
+   "Play together on multiple consoles",
+   "Play together on one console"
+  ],
+  "esrb_rating": "Everyone",
+  "description": null,
+  "store_url": "https://www.nintendo.com/us/store/products/animal-crossing-new-horizons-switch/"
+ },
+ {
+  "nsuid": "70010000001130",
+  "title": "Super Mario Odyssey",
+  "icon_url": "https://assets.nintendo.com/image/fetch/q_auto/f_auto/https://atum-img-lp1.cdn.nintendo.net/i/c/350f1d1a5f3d4a7bbb381b3f0f038981_1024",
+  "hero_url": "https://assets.nintendo.com/image/upload/c_fill,w_1240,h_698/f_auto/q_auto/store/software/switch/70010000001130/c42553b4fd0312c31e70ec7468c6c9bccd739f340152925b9600631f2d29f8b5",
+  "platform": "Nintendo Switch",
+  "publisher": "Nintendo",
+  "developer": "Nintendo",
+  "release_date": "2017-10-27",
+  "genres": [
+   "Action",
+   "Adventure"
+  ],
+  "player_count": "2+",
+  "max_players": 2,
+  "multiplayer": true,
+  "local_multiplayer": true,
+  "online_multiplayer": true,
+  "coop": false,
+  "play_modes": [
+   "TV mode",
+   "Tabletop mode",
+   "Handheld mode"
+  ],
+  "ways_to_play": [
+   "GameShare over GameChat",
+   "GameShare with local users",
+   "Meet up and play together",
+   "Play together on one console"
+  ],
+  "esrb_rating": "Everyone 10+",
+  "description": null,
+  "store_url": "https://www.nintendo.com/us/store/products/super-mario-odyssey-switch/"
+ },
+ {
+  "nsuid": "70010000046395",
+  "title": "Splatoon 3",
+  "icon_url": "https://assets.nintendo.com/image/fetch/q_auto/f_auto/https://atum-img-lp1.cdn.nintendo.net/i/c/c210c76314bf4b268146c4784c109cb7_1024",
+  "hero_url": "https://assets.nintendo.com/image/upload/c_fill,w_1240,h_698/f_auto/q_auto/store/software/switch/70010000046395/94a4095cda06c4d85c637d1af451979f9933302b6b17174d97c45de7a68584a2",
+  "platform": "Nintendo Switch",
+  "publisher": "Nintendo",
+  "developer": "Nintendo",
+  "release_date": "2022-09-09",
+  "genres": [
+   "Action",
+   "Shooting"
+  ],
+  "player_count": "Single player",
+  "max_players": 1,
+  "multiplayer": true,
+  "local_multiplayer": true,
+  "online_multiplayer": true,
+  "coop": true,
+  "play_modes": [
+   "TV mode",
+   "Tabletop mode",
+   "Handheld mode"
+  ],
+  "ways_to_play": [
+   "Compete online",
+   "Meet up and play together",
+   "Online co-op",
+   "Play online with friends",
+   "Play together on multiple consoles"
+  ],
+  "esrb_rating": "Everyone 10+",
+  "description": "Dive into the ultimate ink battle with Splatoon 3 for Nintendo Switch. Compete in Turf War, story mode, and co-op Salmon Run: Next Wave.",
+  "store_url": "https://www.nintendo.com/us/store/products/splatoon-3-switch/"
+ },
+ {
+  "nsuid": "70010000053966",
+  "title": "Pokémon Scarlet",
+  "icon_url": "https://assets.nintendo.com/image/fetch/q_auto/f_auto/https://atum-img-lp1.cdn.nintendo.net/i/c/b43b0daad2d8403c952899aff1d4e41e_1024",
+  "hero_url": "https://assets.nintendo.com/image/upload/c_fill,w_1240,h_698/f_auto/q_auto/store/software/switch/70010000053966/849c234de8df7265201d26d9d72f88eed3f32438d3dca12fc135beb4c3befc85",
+  "platform": "Nintendo Switch",
+  "publisher": "Nintendo",
+  "developer": "GAME FREAK inc.",
+  "release_date": "2022-11-18",
+  "genres": [
+   "Role playing"
+  ],
+  "player_count": "Single player",
+  "max_players": 1,
+  "multiplayer": true,
+  "local_multiplayer": true,
+  "online_multiplayer": true,
+  "coop": true,
+  "play_modes": [
+   "TV mode",
+   "Tabletop mode",
+   "Handheld mode"
+  ],
+  "ways_to_play": [
+   "Compete online",
+   "Meet up and play together",
+   "Online co-op",
+   "Play together on multiple consoles"
+  ],
+  "esrb_rating": "Everyone",
+  "description": "Explore the open-world Paldea region in Pokémon Scarlet for Nintendo Switch. Discover new Pokémon and enjoy a seamless open-world RPG.",
+  "store_url": "https://www.nintendo.com/us/store/products/pokemon-scarlet-switch/"
+ },
+ {
+  "nsuid": "70010000068688",
+  "title": "Super Mario Bros. Wonder",
+  "icon_url": "https://assets.nintendo.com/image/fetch/q_auto/f_auto/https://atum-img-lp1.cdn.nintendo.net/i/c/b806e509bb9d463b91b0b2f7cc42fd02_1024",
+  "hero_url": "https://assets.nintendo.com/image/upload/c_fill,w_1240,h_698/f_auto/q_auto/store/software/switch/70010000068688/87e8aa5f1fdc950b88eae7d7c62ed185c8a6373c845090bbdb2e2cf039b38da1",
+  "platform": "Nintendo Switch",
+  "publisher": "Nintendo",
+  "developer": "Nintendo",
+  "release_date": "2023-10-20",
+  "genres": [
+   "Action"
+  ],
+  "player_count": "4+",
+  "max_players": 4,
+  "multiplayer": true,
+  "local_multiplayer": true,
+  "online_multiplayer": true,
+  "coop": true,
+  "play_modes": [
+   "TV mode",
+   "Tabletop mode",
+   "Handheld mode"
+  ],
+  "ways_to_play": [
+   "Meet up and play together",
+   "Online co-op",
+   "Play online with friends",
+   "Play together on one console"
+  ],
+  "esrb_rating": "Everyone",
+  "description": null,
+  "store_url": "https://www.nintendo.com/us/store/products/super-mario-bros-wonder-switch/"
+ },
+ {
+  "nsuid": "70010000042934",
+  "title": "Mario Party Superstars",
+  "icon_url": "https://assets.nintendo.com/image/fetch/q_auto/f_auto/https://atum-img-lp1.cdn.nintendo.net/i/c/3416f66b6c2e47dc885351e33018ff87_1024",
+  "hero_url": "https://assets.nintendo.com/image/upload/c_fill,w_1240,h_698/f_auto/q_auto/store/software/switch/70010000042934/ae43ce2e25afbc4c069c2920075ead01a84f02dfe55b87876268409f6ccc0304",
+  "platform": "Nintendo Switch",
+  "publisher": "Nintendo",
+  "developer": null,
+  "release_date": "2021-10-29",
+  "genres": [
+   "Action",
+   "Party",
+   "Tabletop"
+  ],
+  "player_count": "4+",
+  "max_players": 4,
+  "multiplayer": true,
+  "local_multiplayer": true,
+  "online_multiplayer": true,
+  "coop": false,
+  "play_modes": [
+   "TV mode",
+   "Tabletop mode",
+   "Handheld mode"
+  ],
+  "ways_to_play": [
+   "Compete online",
+   "Meet up and play together",
+   "Play online with friends",
+   "Play together on multiple consoles",
+   "Play together on one console"
+  ],
+  "esrb_rating": "Everyone",
+  "description": "Compete in classic boards and 100 beloved minigames in Mario Party Superstars for Nintendo Switch. Play locally or online with friends.",
+  "store_url": "https://www.nintendo.com/us/store/products/mario-party-superstars-switch/"
+ },
+ {
+  "nsuid": "70010000046405",
+  "title": "Kirby and the Forgotten Land",
+  "icon_url": "https://assets.nintendo.com/image/fetch/q_auto/f_auto/https://atum-img-lp1.cdn.nintendo.net/i/c/5f79fbade00f4fdba23d7df29cb5821f_1024",
+  "hero_url": "https://assets.nintendo.com/image/upload/c_fill,w_1240,h_698/f_auto/q_auto/store/software/switch/70010000046405/d1cf83dea46094b85247f40ca30ea4557730a319be0bfe544a4fa929144cf6c2",
+  "platform": "Nintendo Switch",
+  "publisher": "Nintendo",
+  "developer": "HAL Laboratory",
+  "release_date": "2022-03-25",
+  "genres": [
+   "Action",
+   "Adventure"
+  ],
+  "player_count": "2+",
+  "max_players": 2,
+  "multiplayer": true,
+  "local_multiplayer": true,
+  "online_multiplayer": true,
+  "coop": false,
+  "play_modes": [
+   "TV mode",
+   "Tabletop mode",
+   "Handheld mode"
+  ],
+  "ways_to_play": [
+   "Meet up and play together",
+   "Play together on one console"
+  ],
+  "esrb_rating": "Everyone 10+",
+  "description": null,
+  "store_url": "https://www.nintendo.com/us/store/products/kirby-and-the-forgotten-land-switch/"
+ },
+ {
+  "nsuid": "70010000001620",
+  "title": "Luigi’s Mansion 3",
+  "icon_url": "https://assets.nintendo.com/image/fetch/q_auto/f_auto/https://atum-img-lp1.cdn.nintendo.net/i/c/c0d753bc7e5642edb419ec23e5619106_1024",
+  "hero_url": "https://assets.nintendo.com/image/upload/c_fill,w_1240,h_698/f_auto/q_auto/store/software/switch/70010000001620/2b166fb3197dacfde1d939acd6a976b9fbe3b1a32c54f9f0d2c8d23efb22412d",
+  "platform": "Nintendo Switch",
+  "publisher": "Nintendo",
+  "developer": null,
+  "release_date": "2019-10-31",
+  "genres": [
+   "Action",
+   "Adventure"
+  ],
+  "player_count": "4+",
+  "max_players": 4,
+  "multiplayer": true,
+  "local_multiplayer": true,
+  "online_multiplayer": true,
+  "coop": true,
+  "play_modes": [
+   "TV mode",
+   "Tabletop mode",
+   "Handheld mode"
+  ],
+  "ways_to_play": [
+   "Meet up and play together",
+   "Online co-op",
+   "Play together on multiple consoles",
+   "Play together on one console"
+  ],
+  "esrb_rating": "Everyone",
+  "description": "Rescue friends from a haunted hotel in Luigi's Mansion 3 for Nintendo Switch. Explore spooky floors, solve puzzles, and bust ghosts.",
+  "store_url": "https://www.nintendo.com/us/store/products/luigis-mansion-3-switch/"
+ },
+ {
+  "nsuid": "70010000000964",
+  "title": "Minecraft",
+  "icon_url": "https://assets.nintendo.com/image/fetch/q_auto/f_auto/https://atum-img-lp1.cdn.nintendo.net/i/c/812fa3bf75f340d0ae81161cf6e1d639_1024",
+  "hero_url": "https://assets.nintendo.com/image/upload/c_fill,w_1240,h_698/f_auto/q_auto/store/software/switch/70010000000964/a28a81253e919298beab2295e39a56b7a5140ef15abdb56135655e5c221b2a3a",
+  "platform": "Nintendo Switch",
+  "publisher": "Mojang",
+  "developer": null,
+  "release_date": "2018-06-20",
+  "genres": [
+   "Action",
+   "Simulation"
+  ],
+  "player_count": "4+",
+  "max_players": 4,
+  "multiplayer": true,
+  "local_multiplayer": true,
+  "online_multiplayer": true,
+  "coop": true,
+  "play_modes": [
+   "TV mode",
+   "Tabletop mode",
+   "Handheld mode"
+  ],
+  "ways_to_play": [
+   "Cross-platform play",
+   "Meet up and play together",
+   "Online co-op",
+   "Play online with friends",
+   "Play together on multiple consoles",
+   "Play together on one console"
+  ],
+  "esrb_rating": "Everyone 10+",
+  "description": "Build, explore, and survive in Minecraft for Nintendo Switch. Create endless worlds, craft tools, and play solo or with friends.",
+  "store_url": "https://www.nintendo.com/us/store/products/minecraft-switch/"
+ },
+ {
+  "nsuid": "70010000003402",
+  "title": "Overcooked! 2",
+  "icon_url": "https://assets.nintendo.com/image/fetch/q_auto/f_auto/https://atum-img-lp1.cdn.nintendo.net/i/c/951117aae76545beade2b86a68c6a38a_1024",
+  "hero_url": "https://assets.nintendo.com/image/upload/c_fill,w_1240,h_698/f_auto/q_auto/store/software/switch/70010000003402/057249cf707a2a733c876c0eb453bb018ee6ea09f3aea5c350f4d76f70840d00",
+  "platform": "Nintendo Switch",
+  "publisher": "Team17",
+  "developer": null,
+  "release_date": "2018-08-07",
+  "genres": [
+   "Action",
+   "Party"
+  ],
+  "player_count": "4+",
+  "max_players": 4,
+  "multiplayer": true,
+  "local_multiplayer": true,
+  "online_multiplayer": true,
+  "coop": true,
+  "play_modes": [
+   "TV mode",
+   "Tabletop mode",
+   "Handheld mode"
+  ],
+  "ways_to_play": [
+   "Meet up and play together",
+   "Online co-op",
+   "Play online with friends",
+   "Play together on multiple consoles",
+   "Play together on one console"
+  ],
+  "esrb_rating": "Everyone",
+  "description": null,
+  "store_url": "https://www.nintendo.com/us/store/products/overcooked-2-switch/"
+ },
+ {
+  "nsuid": "70010000001801",
+  "title": "Stardew Valley",
+  "icon_url": "https://assets.nintendo.com/image/fetch/q_auto/f_auto/https://atum-img-lp1.cdn.nintendo.net/i/c/4c6f0e9a7a7e4f108d16e84bdc6dca0c_1024",
+  "hero_url": "https://assets.nintendo.com/image/upload/c_fill,w_1240,h_698/f_auto/q_auto/store/software/switch/70010000001801/7aa9c6cf5e7d4cecf481f18b1d7a9d79e7aab85045b22203effb2dda409bc5b7",
+  "platform": "Nintendo Switch",
+  "publisher": "ConcernedApe",
+  "developer": "ConcernedApe",
+  "release_date": "2017-10-05",
+  "genres": [
+   "Action",
+   "Simulation"
+  ],
+  "player_count": "Single player",
+  "max_players": 1,
+  "multiplayer": true,
+  "local_multiplayer": true,
+  "online_multiplayer": true,
+  "coop": true,
+  "play_modes": [
+   "TV mode",
+   "Tabletop mode",
+   "Handheld mode"
+  ],
+  "ways_to_play": [
+   "Meet up and play together",
+   "Online co-op",
+   "Play together on multiple consoles",
+   "Play together on one console"
+  ],
+  "esrb_rating": "Everyone 10+",
+  "description": null,
+  "store_url": "https://www.nintendo.com/us/store/products/stardew-valley-switch/"
+ },
+ {
+  "nsuid": "70010000003208",
+  "title": "Hollow Knight",
+  "icon_url": "https://assets.nintendo.com/image/fetch/q_auto/f_auto/https://atum-img-lp1.cdn.nintendo.net/i/c/d6aae7b54581406d84d927795f83eb17_1024",
+  "hero_url": "https://assets.nintendo.com/image/upload/c_fill,w_1240,h_698/f_auto/q_auto/store/software/switch/70010000003208/4643fb058642335c523910f3a7910575f56372f612f7c0c9a497aaae978d3e51",
+  "platform": "Nintendo Switch",
+  "publisher": "Team Cherry",
+  "developer": "Team Cherry",
+  "release_date": "2018-06-12",
+  "genres": [
+   "Action"
+  ],
+  "player_count": "Single player",
+  "max_players": 1,
+  "multiplayer": false,
+  "local_multiplayer": false,
+  "online_multiplayer": false,
+  "coop": false,
+  "play_modes": [
+   "TV mode",
+   "Tabletop mode",
+   "Handheld mode"
+  ],
+  "ways_to_play": [],
+  "esrb_rating": "Everyone 10+",
+  "description": null,
+  "store_url": "https://www.nintendo.com/us/store/products/hollow-knight-switch/"
+ },
+ {
+  "nsuid": "70010000042924",
+  "title": "Metroid Dread",
+  "icon_url": "https://assets.nintendo.com/image/fetch/q_auto/f_auto/https://atum-img-lp1.cdn.nintendo.net/i/c/3c9f3b4920d240dc99226fa5374142ac_1024",
+  "hero_url": "https://assets.nintendo.com/image/upload/c_fill,w_1240,h_698/f_auto/q_auto/store/software/switch/70010000042924/4f2c683f0196210ec212a2ab8bf6952223c0b88e827b820953407a2ba61c9cb2",
+  "platform": "Nintendo Switch",
+  "publisher": "Nintendo",
+  "developer": null,
+  "release_date": "2021-10-08",
+  "genres": [
+   "Action",
+   "Adventure",
+   "Shooting"
+  ],
+  "player_count": "Single player",
+  "max_players": 1,
+  "multiplayer": false,
+  "local_multiplayer": false,
+  "online_multiplayer": false,
+  "coop": false,
+  "play_modes": [
+   "TV mode",
+   "Tabletop mode",
+   "Handheld mode"
+  ],
+  "ways_to_play": [],
+  "esrb_rating": "Teen",
+  "description": "Face a terrifying new threat as Samus in Metroid Dread for Nintendo Switch. Explore an alien planet and evade relentless E.M.M.I. robots.",
+  "store_url": "https://www.nintendo.com/us/store/products/metroid-dread-switch/"
+ },
+ {
+  "nsuid": "70010000095431",
+  "title": "Mario Kart World",
+  "icon_url": "https://assets.nintendo.com/image/fetch/q_auto/f_auto/https://atum-img-lp1.cdn.nintendo.net/i/c/e1def375c7254d669bcd65ff10170151_1024",
+  "hero_url": "https://assets.nintendo.com/image/upload/c_fill,w_1240,h_698/f_auto/q_auto/store/software/switch2/70010000095431/0485f410193ca12f92a2f615ea608bb437540f321bd05e464593c33fefa09bf2",
+  "platform": "Nintendo Switch 2",
+  "publisher": "Nintendo",
+  "developer": "Nintendo",
+  "release_date": "2025-06-05",
+  "genres": [
+   "Party",
+   "Racing"
+  ],
+  "player_count": "4+",
+  "max_players": 4,
+  "multiplayer": true,
+  "local_multiplayer": true,
+  "online_multiplayer": true,
+  "coop": false,
+  "play_modes": [
+   "TV mode",
+   "Tabletop mode",
+   "Handheld mode"
+  ],
+  "ways_to_play": [
+   "Compete online",
+   "Meet up and play together",
+   "Play online with friends",
+   "Play together on multiple consoles",
+   "Play together on one console"
+  ],
+  "esrb_rating": "Everyone",
+  "description": "Race across the globe in Mario Kart World, a Nintendo Switch 2 exclusive. Master new tracks and enjoy fast-paced racing with friends.",
+  "store_url": "https://www.nintendo.com/us/store/products/mario-kart-world-switch-2/"
+ },
+ {
+  "nsuid": "70010000096809",
+  "title": "Donkey Kong Bananza",
+  "icon_url": "https://assets.nintendo.com/image/fetch/q_auto/f_auto/https://atum-img-lp1.cdn.nintendo.net/i/c/7642abba40804e84a115e3e36e230bc1_1024",
+  "hero_url": "https://assets.nintendo.com/image/upload/c_fill,w_1240,h_698/f_auto/q_auto/store/software/switch2/70010000096809/3c8219fbdcd3bdd0ebd6239cf32c651fe10f2157aa7730fcc6a7d96cd27460e5",
+  "platform": "Nintendo Switch 2",
+  "publisher": "Nintendo",
+  "developer": null,
+  "release_date": "2025-07-17",
+  "genres": [
+   "Action",
+   "Adventure"
+  ],
+  "player_count": "2+",
+  "max_players": 2,
+  "multiplayer": true,
+  "local_multiplayer": true,
+  "online_multiplayer": true,
+  "coop": false,
+  "play_modes": [
+   "TV mode",
+   "Tabletop mode",
+   "Handheld mode"
+  ],
+  "ways_to_play": [
+   "GameShare over GameChat",
+   "GameShare with local users",
+   "Meet up and play together",
+   "Play together on one console"
+  ],
+  "esrb_rating": "Everyone 10+",
+  "description": "Swing into action with Donkey Kong Bananza, a Nintendo Switch 2 exclusive. Enjoy classic platforming, jungle mayhem, and all‑new adventures with Donkey Kong.",
+  "store_url": "https://www.nintendo.com/us/store/products/donkey-kong-bananza-switch-2/"
+ },
+ {
+  "nsuid": "70010000005308",
+  "title": "Pikmin 4",
+  "icon_url": "https://assets.nintendo.com/image/fetch/q_auto/f_auto/https://atum-img-lp1.cdn.nintendo.net/i/c/0eeaf4cb41c44c699f093e96d0cf17cb_1024",
+  "hero_url": "https://assets.nintendo.com/image/upload/c_fill,w_1240,h_698/f_auto/q_auto/store/software/switch/70010000005308/43af89ed5bd76ac5ec6b367b4b53092f8bf94a1d1312fdfc1d4664329fd5077b",
+  "platform": "Nintendo Switch",
+  "publisher": "Nintendo",
+  "developer": null,
+  "release_date": "2023-07-21",
+  "genres": [
+   "Action",
+   "Adventure",
+   "Strategy"
+  ],
+  "player_count": "2+",
+  "max_players": 2,
+  "multiplayer": true,
+  "local_multiplayer": true,
+  "online_multiplayer": false,
+  "coop": false,
+  "play_modes": [
+   "TV mode",
+   "Tabletop mode",
+   "Handheld mode"
+  ],
+  "ways_to_play": [
+   "Meet up and play together",
+   "Play together on one console"
+  ],
+  "esrb_rating": "Everyone 10+",
+  "description": "Explore a world from a tiny perspective in Pikmin 4 for Nintendo Switch. Lead Pikmin, team up with Oatchi, and rescue castaways.",
+  "store_url": "https://www.nintendo.com/us/store/products/pikmin-4-switch/"
+ },
+ {
+  "nsuid": "70010000121106",
+  "title": "It Takes Two",
+  "icon_url": "https://assets.nintendo.com/image/upload/q_auto/f_auto/store/software/switch2/70010000121106/9611e36537194fd53348de179fcfa526863fae40d7dcece5cf49f466461ef52e",
+  "hero_url": "https://assets.nintendo.com/image/upload/c_fill,w_1240,h_698/f_auto/q_auto/store/software/switch2/70010000121106/e7200824041808289d4a65589ed368f7e08dc2e538a5fd7ee9f8d39e58015c24",
+  "platform": "Nintendo Switch 2",
+  "publisher": "Electronic Arts",
+  "developer": null,
+  "release_date": "2026-10-15",
+  "genres": [
+   "Action",
+   "Adventure"
+  ],
+  "player_count": "2+",
+  "max_players": 2,
+  "multiplayer": true,
+  "local_multiplayer": true,
+  "online_multiplayer": true,
+  "coop": true,
+  "play_modes": [
+   "TV mode",
+   "Tabletop mode",
+   "Handheld mode"
+  ],
+  "ways_to_play": [
+   "Cross-platform play",
+   "GameShare with local users",
+   "Meet up and play together",
+   "Online co-op",
+   "Play online with friends",
+   "Play together on multiple consoles",
+   "Play together on one console"
+  ],
+  "esrb_rating": "Teen",
+  "description": null,
+  "store_url": "https://www.nintendo.com/us/store/products/it-takes-two-70010000121106-switch-2/"
+ },
+ {
+  "nsuid": "70010000049931",
+  "title": "Nintendo Switch Sports",
+  "icon_url": "https://assets.nintendo.com/image/fetch/q_auto/f_auto/https://atum-img-lp1.cdn.nintendo.net/i/c/cfc9434412ae4d0b90c1247e2b9ae5a0_1024",
+  "hero_url": "https://assets.nintendo.com/image/upload/c_fill,w_1240,h_698/f_auto/q_auto/store/software/switch/70010000049931/282ce6a96d5855d8b46aa9316314969f731a26ef9c7b2bc1e5aebe62dcf2ece2",
+  "platform": "Nintendo Switch",
+  "publisher": "Nintendo",
+  "developer": "Nintendo",
+  "release_date": "2022-04-29",
+  "genres": [
+   "Action",
+   "Party",
+   "Sports"
+  ],
+  "player_count": "4+",
+  "max_players": 4,
+  "multiplayer": true,
+  "local_multiplayer": true,
+  "online_multiplayer": true,
+  "coop": false,
+  "play_modes": [
+   "TV mode",
+   "Tabletop mode"
+  ],
+  "ways_to_play": [
+   "Compete online",
+   "Meet up and play together",
+   "Play online with friends",
+   "Play together on one console"
+  ],
+  "esrb_rating": "Everyone 10+",
+  "description": "Swing, kick, and spike in Nintendo Switch Sports. Play soccer, tennis, bowling, volleyball, badminton, and chambara with motion controls.",
+  "store_url": "https://www.nintendo.com/us/store/products/nintendo-switch-sports-switch/"
+ },
+ {
+  "nsuid": "70010000034439",
+  "title": "Super Mario 3D World + Bowser’s Fury",
+  "icon_url": "https://assets.nintendo.com/image/fetch/q_auto/f_auto/https://atum-img-lp1.cdn.nintendo.net/i/c/dae60d6d49204d4ba2fd75c9e4908aa9_1024",
+  "hero_url": "https://assets.nintendo.com/image/upload/c_fill,w_1240,h_698/f_auto/q_auto/store/software/switch/70010000034439/ccb69a8bf2746b2dc0a9b11a9e48c9893baa1631486326f0d681b7a36385221f",
+  "platform": "Nintendo Switch",
+  "publisher": "Nintendo",
+  "developer": null,
+  "release_date": "2021-02-12",
+  "genres": [
+   "Action",
+   "Adventure"
+  ],
+  "player_count": "4+",
+  "max_players": 4,
+  "multiplayer": true,
+  "local_multiplayer": true,
+  "online_multiplayer": true,
+  "coop": true,
+  "play_modes": [
+   "TV mode",
+   "Tabletop mode",
+   "Handheld mode"
+  ],
+  "ways_to_play": [
+   "GameShare over GameChat",
+   "GameShare with local users",
+   "Meet up and play together",
+   "Online co-op",
+   "Play online with friends",
+   "Play together on multiple consoles",
+   "Play together on one console"
+  ],
+  "esrb_rating": "Everyone",
+  "description": null,
+  "store_url": "https://www.nintendo.com/us/store/products/super-mario-3d-world-plus-bowsers-fury-switch/"
+ },
+ {
+  "nsuid": "70010000084618",
+  "title": "The Legend of Zelda: Echoes of Wisdom",
+  "icon_url": "https://assets.nintendo.com/image/fetch/q_auto/f_auto/https://atum-img-lp1.cdn.nintendo.net/i/c/7ec57a678a634381859fb75f801b28db_1024",
+  "hero_url": "https://assets.nintendo.com/image/upload/c_fill,w_1240,h_698/f_auto/q_auto/store/software/switch/70010000084618/e3a49cf14180cec09c515595fb7121b048a0f8327eae2d248909d0f0c64a9dc9",
+  "platform": "Nintendo Switch",
+  "publisher": "Nintendo",
+  "developer": null,
+  "release_date": "2024-09-26",
+  "genres": [
+   "Action",
+   "Adventure"
+  ],
+  "player_count": "Single player",
+  "max_players": 1,
+  "multiplayer": false,
+  "local_multiplayer": false,
+  "online_multiplayer": false,
+  "coop": false,
+  "play_modes": [
+   "TV mode",
+   "Tabletop mode",
+   "Handheld mode"
+  ],
+  "ways_to_play": [],
+  "esrb_rating": "Everyone 10+",
+  "description": null,
+  "store_url": "https://www.nintendo.com/us/store/products/the-legend-of-zelda-echoes-of-wisdom-switch/"
+ },
+ {
+  "nsuid": "70010000003889",
+  "title": "Mario Tennis Aces",
+  "icon_url": "https://assets.nintendo.com/image/fetch/q_auto/f_auto/https://atum-img-lp1.cdn.nintendo.net/i/c/da34d7f30d034a5db643d318e409da03_1024",
+  "hero_url": "https://assets.nintendo.com/image/upload/c_fill,w_1240,h_698/f_auto/q_auto/store/software/switch/70010000003889/7d4bb0a9ace1fb56a41aae8ef0d4ee806419e6187afdb4697a598458f02cd8e7",
+  "platform": "Nintendo Switch",
+  "publisher": "Nintendo",
+  "developer": null,
+  "release_date": "2018-06-22",
+  "genres": [
+   "Party",
+   "Sports"
+  ],
+  "player_count": "4+",
+  "max_players": 4,
+  "multiplayer": true,
+  "local_multiplayer": true,
+  "online_multiplayer": true,
+  "coop": true,
+  "play_modes": [
+   "TV mode",
+   "Tabletop mode",
+   "Handheld mode"
+  ],
+  "ways_to_play": [
+   "Compete online",
+   "Meet up and play together",
+   "Online co-op",
+   "Play online with friends",
+   "Play together on multiple consoles",
+   "Play together on one console"
+  ],
+  "esrb_rating": "Everyone",
+  "description": "Serve, volley, and unleash Zone Shots in Mario Tennis Aces for Nintendo Switch. Play story mode or challenge friends in fast-paced matches.",
+  "store_url": "https://www.nintendo.com/us/store/products/mario-tennis-aces-switch/"
+ },
+ {
+  "nsuid": "70010000103775",
+  "title": "Kirby Air Riders",
+  "icon_url": "https://assets.nintendo.com/image/fetch/q_auto/f_auto/https://atum-img-lp1.cdn.nintendo.net/i/c/0badbf59b53346db8022c1c003277025_1024",
+  "hero_url": "https://assets.nintendo.com/image/upload/c_fill,w_1240,h_698/f_auto/q_auto/store/software/switch2/70010000103775/61c47511e5fc392c271d6f4736fa0575e2aed19c30e6fe73b50906cadb9b2996",
+  "platform": "Nintendo Switch 2",
+  "publisher": "Nintendo",
+  "developer": null,
+  "release_date": "2025-11-20",
+  "genres": [
+   "Action",
+   "Party",
+   "Racing"
+  ],
+  "player_count": "4+",
+  "max_players": 4,
+  "multiplayer": true,
+  "local_multiplayer": true,
+  "online_multiplayer": true,
+  "coop": false,
+  "play_modes": [
+   "TV mode",
+   "Tabletop mode",
+   "Handheld mode"
+  ],
+  "ways_to_play": [
+   "Compete online",
+   "GameShare over GameChat",
+   "GameShare with local users",
+   "Meet up and play together",
+   "Play online with friends",
+   "Play together on multiple consoles",
+   "Play together on one console"
+  ],
+  "esrb_rating": "Everyone 10+",
+  "description": "Take to the skies with Kirby in Kirby Air Riders for Nintendo Switch 2. Race through courses, inhale rivals, and compete in aerial action.",
+  "store_url": "https://www.nintendo.com/us/store/products/kirby-air-riders-switch-2/"
+ }
+]
