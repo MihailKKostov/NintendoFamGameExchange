@@ -18,6 +18,25 @@ import type {
 import type { Api, Table } from './types';
 
 const LOGIN_EMAIL_KEY = 'fge-login-email';
+/** Who was signed in on this device last time, so the app can open before Firebase confirms it. */
+const SESSION_HINT_KEY = 'fge-session';
+
+function readSessionHint(): Session | null {
+  try {
+    const v = JSON.parse(localStorage.getItem(SESSION_HINT_KEY) ?? 'null') as Session | null;
+    return v?.userId && typeof v.email === 'string' ? v : null;
+  } catch {
+    return null;
+  }
+}
+function writeSessionHint(s: Session | null) {
+  try {
+    if (s) localStorage.setItem(SESSION_HINT_KEY, JSON.stringify(s));
+    else localStorage.removeItem(SESSION_HINT_KEY);
+  } catch {
+    /* storage blocked */
+  }
+}
 
 /** Turn Firebase errors into sentences people can act on. */
 export function friendlyError(error: unknown): Error {
@@ -202,14 +221,23 @@ export function createFirebaseApi(): Api {
 
   const toSession = (u: User | null): Session | null => (u ? { userId: u.uid, email: (u.email ?? '').toLowerCase() } : null);
 
+  // Firebase checks the saved sign-in with Google before reporting it (two
+  // round trips once the token has expired). The app opens straight away from
+  // the session hint; every data call waits here until that check is done.
+  const ready = auth.authStateReady().then(() => {
+    user = auth.currentUser;
+  });
+  onAuthStateChanged(auth, (u) => writeSessionHint(toSession(u)));
+
   const myFamilies = () =>
     live<Family[]>(`u:${uid()}:families`, 'families', (next, fail) =>
       onSnapshot(query(collection(db, 'families'), where('member_ids', 'array-contains', uid())), (s) =>
         next(rows<Family>(s).sort((a, b) => a.created_at.localeCompare(b.created_at))), fail),
     );
 
-  return {
+  const api: Api = {
     mode: 'firebase',
+    cachedSession: readSessionHint,
 
     // --- auth ---------------------------------------------------------------
     async getSession() {
@@ -451,6 +479,19 @@ export function createFirebaseApi(): Api {
       return () => listeners.delete(onChange);
     },
   };
+
+  // Everything that reads or writes data waits for the sign-in check.
+  const noWait = new Set<string>([
+    'mode', 'cachedSession', 'getSession', 'onAuthChange', 'sendLoginLink', 'isLoginLink', 'completeLoginLink',
+    'signInWithGoogle', 'signOut', 'selectFamily', 'subscribe',
+  ]);
+  const wrapped = { ...api } as Record<string, unknown>;
+  for (const [name, fn] of Object.entries(api)) {
+    if (typeof fn === 'function' && !noWait.has(name)) {
+      wrapped[name] = (...args: unknown[]) => ready.then(() => (fn as (...a: unknown[]) => unknown)(...args));
+    }
+  }
+  return wrapped as unknown as Api;
 }
 
 /** The email a sign-in link was requested for on this device, if any. */

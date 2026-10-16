@@ -20,6 +20,7 @@ import { Settings } from './pages/Settings';
 import { AuthProvider, useAuth } from './state/auth';
 import { useLiveUpdates } from './state/data';
 import { FamiliesProvider, useFamilies } from './state/families';
+import { useSnapshotSaver } from './state/snapshot';
 import { SettingsProvider } from './state/settings';
 import { ToastProvider } from './state/toast';
 
@@ -62,7 +63,9 @@ function useUiSounds() {
 
 function FamilyGate() {
   const { loading, current } = useFamilies();
+  const { session } = useAuth();
   useLiveUpdates(true);
+  useSnapshotSaver(session?.userId ?? '', current?.id ?? null);
 
   useEffect(() => {
     // Coming back from a sign-in link or Google: return to the page that asked for it.

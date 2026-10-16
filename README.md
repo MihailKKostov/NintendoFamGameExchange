@@ -61,6 +61,7 @@ GitHub Pages (static React app)
 - **Invites are tied to an email address.** An invite can only be read or accepted by someone signed in with that exact, verified email address, or seen by the family's admins.
 - **Removing someone cuts their access immediately.** Their games leave the library and their open requests are cancelled. Loan history is kept.
 - **OpenAI keys never leave the person's device.** Each person pastes their own key in *Settings → Screenshot scanning*. It is saved only in that browser's local storage and sent only to `api.openai.com` when that person scans. It is never sent to Firebase, the Cloud Functions or other family members. OpenAI bills that person's own account; a scan typically costs a fraction of a cent. Removing the key (or clearing site data) deletes it.
+- **Fast reopening keeps a copy on the device.** So the app opens instantly, each browser keeps the app's files (a service worker) and a copy of what you last saw in your current family: profile, families, games, copies and loans. Firebase's own offline cache already stores the same data there. The copy is replaced by live data as soon as your sign-in is confirmed, and deleted when you sign out or your sign-in is no longer valid. A new release is picked up in the background and used the next time the app opens.
 
 ---
 
