@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ChevronDown, Search, SlidersHorizontal, X } from 'lucide-react';
+import { ChevronDown, EyeOff, Search, SlidersHorizontal, X } from 'lucide-react';
 import { displayName } from '../lib/format';
 import { activeFilterCount, emptyFilters, type FacetOptions, type Filters } from '../lib/library';
 import { play } from '../lib/sounds';
@@ -25,19 +25,21 @@ function SelectFilter({
 }
 
 export function FilterBar({
-  filters, onChange, facets, owners, hideOwner = false, resultCount, placeholder = 'Search games, publishers, people…',
+  filters, onChange, facets, owners, hideOwner = false, showNotMine = true, resultCount, placeholder = 'Search games, publishers, people…',
 }: {
   filters: Filters;
   onChange: (f: Filters) => void;
   facets: FacetOptions;
   owners: Profile[];
   hideOwner?: boolean;
+  /** Offer the "Games I don't have" filter (not on your own library). */
+  showNotMine?: boolean;
   resultCount: number;
   placeholder?: string;
 }) {
   const [open, setOpen] = useState(() => activeFilterCount(filters) > 0 && window.innerWidth > 900);
   const set = <K extends keyof Filters>(k: K, v: Filters[K]) => onChange({ ...filters, [k]: v });
-  const toggle = (k: 'multiplayer' | 'local' | 'online' | 'coop') => {
+  const toggle = (k: 'multiplayer' | 'local' | 'online' | 'coop' | 'notMine') => {
     play('tick');
     set(k, !filters[k]);
   };
@@ -100,6 +102,17 @@ export function FilterBar({
         >
           <i className="dot dot-green" /> Available now
         </button>
+        {showNotMine && (
+          <button
+            type="button"
+            className={`chip${filters.notMine ? ' on' : ''}`}
+            aria-pressed={filters.notMine}
+            title="Hide games you already own"
+            onClick={() => toggle('notMine')}
+          >
+            <EyeOff size={15} /> Games I don’t have
+          </button>
+        )}
         <button type="button" className={`chip${filters.multiplayer ? ' on' : ''}`} aria-pressed={filters.multiplayer} onClick={() => toggle('multiplayer')}>
           Multiplayer
         </button>
