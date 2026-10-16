@@ -32,8 +32,9 @@ export function FamiliesProvider({ children }: { children: ReactNode }) {
   const qc = useQueryClient();
 
   const me = useQuery({ queryKey: ['me', uid], queryFn: api.getMe, enabled: !!uid });
-  const families = useQuery({ queryKey: ['families', uid], queryFn: api.listMyFamilies, enabled: !!uid && !!me.data });
-  const invites = useQuery({ queryKey: ['my_invites', uid], queryFn: api.listMyInvites, enabled: !!uid && !!me.data });
+  // Families and invites don't need the profile, so they load alongside it.
+  const families = useQuery({ queryKey: ['families', uid], queryFn: api.listMyFamilies, enabled: !!uid });
+  const invites = useQuery({ queryKey: ['my_invites', uid], queryFn: api.listMyInvites, enabled: !!uid });
 
   const [selected, setSelected] = useState<string | null>(() => {
     try {
@@ -89,7 +90,7 @@ export function FamiliesProvider({ children }: { children: ReactNode }) {
       current,
       role,
       isAdmin: role === 'owner' || role === 'admin',
-      loading: me.isLoading || (!!me.data && families.isLoading),
+      loading: me.isLoading || families.isLoading,
       switchFamily,
     }),
     [me.data, list, invites.data, current, role, me.isLoading, families.isLoading, switchFamily],

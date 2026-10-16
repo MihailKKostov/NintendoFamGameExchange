@@ -1,7 +1,9 @@
 import { initializeApp } from 'firebase/app';
 import {
-  GoogleAuthProvider, connectAuthEmulator, getAuth, isSignInWithEmailLink, onAuthStateChanged, sendSignInLinkToEmail,
-  signInWithEmailLink, signInWithPopup, signOut as fbSignOut, type User,
+  GoogleAuthProvider, browserLocalPersistence, browserPopupRedirectResolver, browserSessionPersistence,
+  connectAuthEmulator, indexedDBLocalPersistence, initializeAuth, isSignInWithEmailLink, onAuthStateChanged,
+  sendSignInLinkToEmail, signInWithEmailLink, signInWithPopup, signOut as fbSignOut, type Auth,
+  type PopupRedirectResolver, type User,
 } from 'firebase/auth';
 import {
   collection, connectFirestoreEmulator, doc, getDoc, initializeFirestore, limit, onSnapshot, orderBy,
@@ -9,7 +11,6 @@ import {
   type Firestore, type QuerySnapshot, type Unsubscribe,
 } from 'firebase/firestore';
 import { connectFunctionsEmulator, getFunctions, httpsCallable } from 'firebase/functions';
-import { connectStorageEmulator, getDownloadURL, getStorage, ref as storageRef, uploadBytes } from 'firebase/storage';
 import { appBaseUrl, config } from '../config';
 import type {
   AppNotification, Family, Game, Invite, LibraryItem, Loan, LoanEvent, Member, Profile, Session,
@@ -50,7 +51,14 @@ const rows = <T,>(snap: QuerySnapshot<DocumentData>) => snap.docs.map((d) => ({ 
 
 export function createFirebaseApi(): Api {
   const app = initializeApp(config.firebase!);
-  const auth = getAuth(app);
+  // Like getAuth(), minus the Google sign-in helper. On phones and Safari,
+  // getAuth() loads Google's sign-in iframe (several scripts from two extra
+  // domains) before it even reports who is signed in, delaying every page load.
+  // It's only needed for "Continue with Google", so it's loaded on the sign-in
+  // screen instead (see warmUpGoogleSignIn).
+  const auth = initializeAuth(app, {
+    persistence: [indexedDBLocalPersistence, browserLocalPersistence, browserSessionPersistence],
+  });
   let db: Firestore;
   try {
     db = initializeFirestore(app, { localCache: persistentLocalCache({ tabManager: persistentMultipleTabManager() }) });
@@ -58,13 +66,41 @@ export function createFirebaseApi(): Api {
     db = initializeFirestore(app, {});
   }
   const fns = getFunctions(app, config.functionsRegion);
-  const storage = getStorage(app);
   if (config.useEmulators) {
     connectAuthEmulator(auth, 'http://127.0.0.1:9099', { disableWarnings: true });
     connectFirestoreEmulator(db, '127.0.0.1', 8080);
     connectFunctionsEmulator(fns, '127.0.0.1', 5001);
-    connectStorageEmulator(storage, '127.0.0.1', 9199);
   }
+
+  // Storage is only used for profile pictures, so it's loaded on first upload.
+  let storageMod: Promise<{ mod: typeof import('firebase/storage'); storage: import('firebase/storage').FirebaseStorage }> | null = null;
+  const loadStorage = () =>
+    (storageMod ??= import('firebase/storage').then((mod) => {
+      const storage = mod.getStorage(app);
+      if (config.useEmulators) mod.connectStorageEmulator(storage, '127.0.0.1', 9199);
+      return { mod, storage };
+    }));
+
+  // Load Google's sign-in helper ahead of time while someone is on the sign-in
+  // screen: Safari only allows the popup if it opens right away on tap, and the
+  // popup waits for this helper. Firebase has no public "preload" call, so we
+  // hand signInWithPopup our own instance of its resolver and initialise that
+  // one early. If Firebase internals ever change, the warm-up quietly does
+  // nothing and the helper loads on tap instead.
+  const googleHelper = new (browserPopupRedirectResolver as unknown as new () => { _initialize?: (a: Auth) => Promise<unknown> })();
+  const googleResolver = function GoogleResolver() {
+    return googleHelper;
+  } as unknown as PopupRedirectResolver;
+  let warmedUp = false;
+  const warmUpGoogleSignIn = () => {
+    if (warmedUp) return;
+    warmedUp = true;
+    try {
+      void googleHelper._initialize?.(auth)?.catch(() => undefined);
+    } catch {
+      /* loads on tap instead */
+    }
+  };
 
   let user: User | null = null;
   let familyId: string | null = null;
@@ -179,6 +215,7 @@ export function createFirebaseApi(): Api {
     async getSession() {
       await auth.authStateReady();
       user = auth.currentUser;
+      if (!user) warmUpGoogleSignIn();
       return toSession(user);
     },
     onAuthChange(cb) {
@@ -188,6 +225,7 @@ export function createFirebaseApi(): Api {
           familyId = null;
         }
         user = u;
+        if (!u) warmUpGoogleSignIn();
         cb(toSession(u));
       });
     },
@@ -214,7 +252,7 @@ export function createFirebaseApi(): Api {
     },
     async signInWithGoogle() {
       try {
-        await signInWithPopup(auth, new GoogleAuthProvider());
+        await signInWithPopup(auth, new GoogleAuthProvider(), googleResolver);
       } catch (e) {
         throw friendlyError(e);
       }
@@ -244,9 +282,10 @@ export function createFirebaseApi(): Api {
     async uploadAvatar(file) {
       const ext = file.type === 'image/png' ? 'png' : file.type === 'image/webp' ? 'webp' : 'jpg';
       try {
-        const r = storageRef(storage, `avatars/${uid()}/${Date.now()}.${ext}`);
-        await uploadBytes(r, file, { contentType: file.type || 'image/jpeg', cacheControl: 'public, max-age=31536000' });
-        return await getDownloadURL(r);
+        const { mod, storage } = await loadStorage();
+        const r = mod.ref(storage, `avatars/${uid()}/${Date.now()}.${ext}`);
+        await mod.uploadBytes(r, file, { contentType: file.type || 'image/jpeg', cacheControl: 'public, max-age=31536000' });
+        return await mod.getDownloadURL(r);
       } catch (e) {
         throw friendlyError(e);
       }
