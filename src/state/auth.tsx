@@ -2,6 +2,7 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useRef, use
 import { useQueryClient } from '@tanstack/react-query';
 import { api } from '../api';
 import type { Session } from '../types';
+import { clearSnapshots, restoreSnapshot } from './snapshot';
 
 type Status = 'loading' | 'signed_out' | 'ready';
 
@@ -15,9 +16,16 @@ const AuthContext = createContext<AuthState | null>(null);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const qc = useQueryClient();
-  const [session, setSession] = useState<Session | null>(null);
-  const [status, setStatus] = useState<Status>('loading');
-  const lastUser = useRef<string | null>(null);
+  // Open straight away as whoever was signed in last time, showing what they
+  // last saw; Firebase confirms (or corrects) it in the background.
+  const [hint] = useState<Session | null>(() => {
+    const h = api.cachedSession?.() ?? null;
+    if (h) restoreSnapshot(qc, h.userId);
+    return h;
+  });
+  const [session, setSession] = useState<Session | null>(hint);
+  const [status, setStatus] = useState<Status>(hint ? 'ready' : 'loading');
+  const lastUser = useRef<string | null>(hint?.userId ?? null);
 
   const apply = useCallback(
     (s: Session | null) => {
@@ -26,6 +34,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         if (lastUser.current) qc.clear();
         lastUser.current = s?.userId ?? null;
       }
+      if (!s) clearSnapshots();
       setSession(s);
       setStatus(s ? 'ready' : 'signed_out');
     },
@@ -48,6 +57,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signOut = useCallback(async () => {
     await api.signOut();
+    clearSnapshots();
     qc.clear();
     apply(null);
   }, [qc, apply]);

@@ -23,6 +23,8 @@ export interface Api {
   readonly mode: 'firebase' | 'demo';
 
   // --- auth -----------------------------------------------------------------
+  /** Who was signed in on this device last time (instant, not yet confirmed). */
+  cachedSession?(): Session | null;
   getSession(): Promise<Session | null>;
   onAuthChange(cb: (session: Session | null) => void): () => void;
   /** Email a sign-in link. */
