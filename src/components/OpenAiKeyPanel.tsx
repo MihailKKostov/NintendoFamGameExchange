@@ -1,6 +1,6 @@
 import { useEffect, useState, type FormEvent } from 'react';
 import { ExternalLink, KeyRound, ShieldCheck, Trash2 } from 'lucide-react';
-import { DEFAULT_MODEL, getOpenAiKey, getOpenAiModel, keyHint, looksLikeKey, saveOpenAi, testOpenAiKey } from '../lib/openai';
+import { DEFAULT_MODEL, getOpenAiKey, getOpenAiModel, keyHint, looksLikeKey, normalizeKey, saveOpenAi, testOpenAiKey } from '../lib/openai';
 import { useToast } from '../state/toast';
 import { Spinner } from './ui';
 
@@ -30,9 +30,9 @@ export function OpenAiKeyPanel({ compact = false, onSaved }: { compact?: boolean
 
   const save = async (e: FormEvent) => {
     e.preventDefault();
-    const k = value.trim();
+    const k = normalizeKey(value);
     if (!looksLikeKey(k)) {
-      setError('That doesn’t look like an OpenAI API key (they start with “sk-”).');
+      setError('That doesn’t look like an OpenAI API key — copy the whole key starting with “sk-”.');
       return;
     }
     setBusy(true);
