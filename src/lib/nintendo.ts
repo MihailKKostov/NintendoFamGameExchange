@@ -193,3 +193,99 @@ export function sizedImage(url: string | null | undefined, width: number): strin
   }
   return url;
 }
+
+/* ---------------------------------------------------------------------------
+ * Store page extras (trailers, screenshots, price) — looked up live on the game
+ * page so every game gets them, including ones added before this existed.
+ * ------------------------------------------------------------------------- */
+
+const CDN = 'https://assets.nintendo.com';
+
+export type StoreMedia =
+  | { kind: 'video'; src: string; webm: string; poster: string; thumb: string }
+  | { kind: 'image'; src: string; full: string; thumb: string };
+
+export interface StoreDetails {
+  media: StoreMedia[];
+  /** Regular (non-sale) price on the US eShop, in USD. */
+  basePrice: number | null;
+}
+
+interface GalleryHit {
+  nsuid?: string;
+  title: string;
+  productGallery?: { publicId: string; resourceType: string }[];
+  price?: { regPrice?: number | null } | null;
+  eshopDetails?: { regularPrice?: number | null } | null;
+}
+
+function toMedia(g: { publicId: string; resourceType: string }): StoreMedia | null {
+  const id = g.publicId.replace(/^\/+/, '');
+  if (!id) return null;
+  if (g.resourceType === 'video') {
+    return {
+      kind: 'video',
+      src: `${CDN}/video/upload/q_auto,c_scale,w_1280/${id}.mp4`,
+      webm: `${CDN}/video/upload/q_auto,c_scale,w_1280/${id}.webm`,
+      poster: `${CDN}/video/upload/so_25p,c_scale,w_1280/${id}.jpg`,
+      thumb: `${CDN}/video/upload/so_25p,c_fill,w_320,h_180/${id}.jpg`,
+    };
+  }
+  if (g.resourceType === 'image') {
+    return {
+      kind: 'image',
+      src: `${CDN}/image/upload/c_fill,w_1280,h_720/f_auto/q_auto/${id}`,
+      full: `${CDN}/image/upload/f_auto/q_auto/${id}`,
+      thumb: `${CDN}/image/upload/c_fill,w_320,h_180/f_auto/q_auto/${id}`,
+    };
+  }
+  return null;
+}
+
+/** Find the game's store entry (by eShop ID, or failing that its exact title). */
+export async function fetchStoreDetails(
+  game: { nsuid: string | null; title: string },
+  signal?: AbortSignal,
+): Promise<StoreDetails | null> {
+  const params = new URLSearchParams({
+    query: cleanTitle(game.title),
+    hitsPerPage: '20',
+    attributesToRetrieve: JSON.stringify(['nsuid', 'title', 'productGallery', 'price', 'eshopDetails']),
+    attributesToHighlight: '[]',
+  });
+  const res = await fetch(ENDPOINT, {
+    method: 'POST',
+    signal,
+    headers: { 'content-type': 'application/x-www-form-urlencoded' },
+    body: JSON.stringify({ params: params.toString() }),
+  });
+  if (!res.ok) throw new Error(`Nintendo store lookup failed (${res.status})`);
+  const hits = ((await res.json()).hits ?? []) as GalleryHit[];
+  const wanted = normalize(game.title);
+  const hit =
+    (game.nsuid && hits.find((h) => h.nsuid === game.nsuid)) || hits.find((h) => normalize(h.title) === wanted);
+  if (!hit) return null;
+
+  const media = (hit.productGallery ?? []).map(toMedia).filter((m): m is StoreMedia => !!m);
+  // Trailers first, like the store page.
+  media.sort((a, b) => (a.kind === b.kind ? 0 : a.kind === 'video' ? -1 : 1));
+  const price = hit.price?.regPrice ?? hit.eshopDetails?.regularPrice ?? null;
+  return { media, basePrice: typeof price === 'number' && price > 0 ? price : null };
+}
+
+/**
+ * The game's page on Deku Deals. Their URLs are the title as a slug; if a guess
+ * misses, Deku Deals redirects to a search for it, so the link still lands.
+ */
+export function dekuDealsUrl(title: string): string {
+  const slug = cleanTitle(title)
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[̀-ͯ]/g, '')
+    .replace(/['’‘]/g, '')
+    .replace(/&/g, ' and ')
+    .replace(/\+/g, ' plus ')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+  return slug ? `https://www.dekudeals.com/items/${slug}` : `https://www.dekudeals.com/search?q=${encodeURIComponent(title)}`;
+}

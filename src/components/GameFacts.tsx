@@ -27,7 +27,9 @@ const modeIcon: Record<string, ReactNode> = {
   'Handheld mode': <Smartphone size={16} />,
 };
 
-export function GameFacts({ game, compact = false }: { game: GameInput; compact?: boolean }) {
+export function GameFacts({
+  game, compact = false, extra = [],
+}: { game: GameInput; compact?: boolean; extra?: [string, ReactNode][] }) {
   const rows: [string, ReactNode][] = [];
   if (game.platform) rows.push(['Platform', game.platform]);
   if (game.publisher) rows.push(['Publisher', game.publisher]);
@@ -35,6 +37,7 @@ export function GameFacts({ game, compact = false }: { game: GameInput; compact?
   if (game.release_date) rows.push(['Released', formatDate(game.release_date, { month: 'long' })]);
   rows.push(['Players', playersText(game)]);
   if (!compact && game.esrb_rating) rows.push(['Rating', game.esrb_rating]);
+  rows.push(...extra);
 
   return (
     <div className="facts">
