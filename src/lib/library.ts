@@ -1,4 +1,4 @@
-import type { Game, LibraryItem, Loan, Profile } from '../types';
+import type { Game, GameRating, LibraryItem, Loan, Profile } from '../types';
 import { yearOf } from './format';
 
 export interface CopyInfo {
@@ -30,7 +30,45 @@ export interface GameEntry {
   onLoanCount: number;
   pendingCount: number;
   latestAdded: string;
+  /** Average stars from current family members (null when nobody rated it). */
+  rating: number | null;
+  ratingCount: number;
+  myRating: number | null;
+  /** Ids of current members who recommend it. */
+  recommendedBy: string[];
+  /** Current members' ratings and recommendations. */
+  opinions: GameRating[];
 }
+
+export interface RatingSummary {
+  rating: number | null;
+  ratingCount: number;
+  myRating: number | null;
+  recommendedBy: string[];
+  opinions: GameRating[];
+}
+
+const noRatings: RatingSummary = { rating: null, ratingCount: 0, myRating: null, recommendedBy: [], opinions: [] };
+
+/** Per game: the family's average rating and recommendations (current members only). */
+export function summarizeRatings(ratings: GameRating[], memberIds: Set<string>, meId: string): Map<string, RatingSummary> {
+  const out = new Map<string, RatingSummary>();
+  for (const r of ratings) {
+    if (!memberIds.has(r.user_id)) continue;
+    let s = out.get(r.game_id);
+    if (!s) out.set(r.game_id, (s = { ...noRatings, recommendedBy: [], opinions: [] }));
+    s.opinions.push(r);
+    if (r.rating != null) {
+      s.rating = ((s.rating ?? 0) * s.ratingCount + r.rating) / (s.ratingCount + 1);
+      s.ratingCount++;
+      if (r.user_id === meId) s.myRating = r.rating;
+    }
+    if (r.recommended) s.recommendedBy.push(r.user_id);
+  }
+  return out;
+}
+
+export const ratingSummaryFor = (map: Map<string, RatingSummary>, gameId: string) => map.get(gameId) ?? noRatings;
 
 export function buildEntries(
   games: Game[],
@@ -38,6 +76,7 @@ export function buildEntries(
   loans: Loan[],
   profileById: Map<string, Profile>,
   meId: string,
+  ratings: Map<string, RatingSummary> = new Map(),
 ): GameEntry[] {
   const gameById = new Map(games.map((g) => [g.id, g]));
   const loansByItem = new Map<string, Loan[]>();
@@ -62,7 +101,10 @@ export function buildEntries(
     };
     let entry = byGame.get(game.id);
     if (!entry) {
-      entry = { game, copies: [], owners: [], availableCount: 0, onLoanCount: 0, pendingCount: 0, latestAdded: item.created_at };
+      entry = {
+        game, copies: [], owners: [], availableCount: 0, onLoanCount: 0, pendingCount: 0, latestAdded: item.created_at,
+        ...ratingSummaryFor(ratings, game.id),
+      };
       byGame.set(game.id, entry);
     }
     entry.copies.push(copy);
@@ -114,12 +156,28 @@ export interface Filters {
   owner: string;
   availability: '' | 'available' | 'on_loan';
   format: '' | 'physical' | 'digital';
-  sort: 'recent' | 'title' | 'release_new' | 'release_old' | 'popular';
+  /** Minimum family rating, or only games nobody has rated yet. */
+  rating: '' | '3' | '4' | '4.5' | 'unrated';
+  /** Only games someone in the family recommends. */
+  recommended: boolean;
+  sort: SortKey;
 }
+
+export const SORTS = ['recent', 'rating', 'title', 'release_new', 'release_old', 'popular'] as const;
+export type SortKey = (typeof SORTS)[number];
+export const sortLabels: Record<SortKey, string> = {
+  recent: 'Recently added',
+  rating: 'Highest rated',
+  title: 'Name A–Z',
+  release_new: 'Newest releases',
+  release_old: 'Oldest releases',
+  popular: 'Most copies',
+};
 
 export const emptyFilters: Filters = {
   q: '', genres: [], platform: '', publisher: '', developer: '', year: '', players: '',
-  multiplayer: false, local: false, online: false, coop: false, notMine: false, owner: '', availability: '', format: '', sort: 'recent',
+  multiplayer: false, local: false, online: false, coop: false, notMine: false, owner: '', availability: '', format: '',
+  rating: '', recommended: false, sort: 'recent',
 };
 
 export function filtersFromParams(p: URLSearchParams): Filters {
@@ -143,7 +201,9 @@ export function filtersFromParams(p: URLSearchParams): Filters {
     owner: p.get('owner') ?? '',
     availability: pick('availability', ['', 'available', 'on_loan'] as const, ''),
     format: pick('format', ['', 'physical', 'digital'] as const, ''),
-    sort: pick('sort', ['recent', 'title', 'release_new', 'release_old', 'popular'] as const, 'recent'),
+    rating: pick('rating', ['', '3', '4', '4.5', 'unrated'] as const, ''),
+    recommended: p.has('rec'),
+    sort: pick('sort', SORTS, 'recent'),
   };
 }
 
@@ -151,19 +211,20 @@ export function filtersToParams(f: Filters): URLSearchParams {
   const p = new URLSearchParams();
   if (f.q) p.set('q', f.q);
   f.genres.forEach((g) => p.append('genre', g));
-  for (const k of ['platform', 'publisher', 'developer', 'year', 'players', 'owner', 'availability', 'format'] as const) {
+  for (const k of ['platform', 'publisher', 'developer', 'year', 'players', 'owner', 'availability', 'format', 'rating'] as const) {
     if (f[k]) p.set(k, f[k]);
   }
   for (const k of ['multiplayer', 'local', 'online', 'coop'] as const) if (f[k]) p.set(k, '1');
   if (f.notMine) p.set('notmine', '1');
+  if (f.recommended) p.set('rec', '1');
   if (f.sort !== 'recent') p.set('sort', f.sort);
   return p;
 }
 
 export function activeFilterCount(f: Filters): number {
   let n = f.genres.length;
-  for (const k of ['platform', 'publisher', 'developer', 'year', 'players', 'owner', 'availability', 'format'] as const) if (f[k]) n++;
-  for (const k of ['multiplayer', 'local', 'online', 'coop', 'notMine'] as const) if (f[k]) n++;
+  for (const k of ['platform', 'publisher', 'developer', 'year', 'players', 'owner', 'availability', 'format', 'rating'] as const) if (f[k]) n++;
+  for (const k of ['multiplayer', 'local', 'online', 'coop', 'notMine', 'recommended'] as const) if (f[k]) n++;
   return n;
 }
 
@@ -171,7 +232,7 @@ const norm = (s: string) => s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,
 
 export function applyFilters(entries: GameEntry[], f: Filters, meId = ''): GameEntry[] {
   const words = norm(f.q).split(/\s+/).filter(Boolean);
-  const out = entries.filter(({ game: g, copies, owners }) => {
+  const out = entries.filter(({ game: g, copies, owners, rating, recommendedBy }) => {
     if (words.length) {
       const hay = norm([g.title, g.publisher, g.developer, ...g.genres, ...owners.map((o) => `${o.display_name} ${o.nickname ?? ''}`)].join(' '));
       if (!words.every((w) => hay.includes(w))) return false;
@@ -193,6 +254,9 @@ export function applyFilters(entries: GameEntry[], f: Filters, meId = ''): GameE
     if (f.format && !copies.some((c) => c.item.format === f.format)) return false;
     if (f.availability === 'available' && !copies.some((c) => c.item.lendable && !c.active)) return false;
     if (f.availability === 'on_loan' && !copies.some((c) => c.active)) return false;
+    if (f.rating === 'unrated' && rating != null) return false;
+    if (f.rating && f.rating !== 'unrated' && (rating == null || rating < Number(f.rating))) return false;
+    if (f.recommended && !recommendedBy.length) return false;
     return true;
   });
 
@@ -205,6 +269,12 @@ export function applyFilters(entries: GameEntry[], f: Filters, meId = ''): GameE
       return out.sort((a, b) => rel(b).localeCompare(rel(a)) || byTitle(a, b));
     case 'release_old':
       return out.sort((a, b) => (rel(a) || '9999').localeCompare(rel(b) || '9999') || byTitle(a, b));
+    case 'rating':
+      // Best rated first (more ratings wins a tie); games nobody rated go last.
+      return out.sort(
+        (a, b) =>
+          (b.rating ?? -1) - (a.rating ?? -1) || b.ratingCount - a.ratingCount || b.recommendedBy.length - a.recommendedBy.length || byTitle(a, b),
+      );
     case 'popular':
       return out.sort((a, b) => b.copies.length - a.copies.length || byTitle(a, b));
     default:

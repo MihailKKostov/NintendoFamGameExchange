@@ -11,7 +11,11 @@ A website for sharing Nintendo games between family and friends. It runs on GitH
   - **eShop search** with autocomplete over the real Nintendo eShop catalog. The official eShop icon and details are filled in automatically: publisher, developer, release date, genres, player count, local/online/co-op multiplayer, play modes and rating.
   - **Scan a screenshot or photo** (console home screen, game list, shelf of cases) with the OpenAI API. This is optional, and **each person uses their own API key, stored only in their own browser** (details below).
   - **Manual entry** for anything that isn't in the eShop.
-- **Browse and filter** the family library. Filters cover name, genre, platform, publisher, developer, release year, player count, multiplayer, local, online, co-op, owner, availability and format.
+- **Ratings and recommendations:** everyone rates each game from 1 to 5 stars and can mark games as recommended. A game's score is the average of the current members' ratings.
+- **Browse and filter** the family library:
+  - Quick filters for the common cases (available now, recommended, 4+ stars, games you don't have, multiplayer, co-op), and a Filters panel for the rest. It's grouped by rating, availability, players, genre, owner and details such as platform, publisher, developer and release year.
+  - Active filters show as pills you can remove one at a time.
+  - Sort by recently added, highest rated, name, release date or number of copies.
 - **Borrowing:**
   - **Request to borrow** marks the game *pending* and notifies the owner in the app and by email. The email has **Accept / Decline / Reply** buttons that open the request.
   - **Owner actions:** the owner can accept with an optional due date, decline, or lend a game directly without a request.

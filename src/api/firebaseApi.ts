@@ -6,14 +6,14 @@ import {
   type PopupRedirectResolver, type User,
 } from 'firebase/auth';
 import {
-  collection, connectFirestoreEmulator, doc, getDoc, initializeFirestore, limit, onSnapshot, orderBy,
-  persistentLocalCache, persistentMultipleTabManager, query, updateDoc, where, writeBatch, type DocumentData,
+  collection, connectFirestoreEmulator, deleteDoc, doc, getDoc, initializeFirestore, limit, onSnapshot, orderBy,
+  persistentLocalCache, persistentMultipleTabManager, query, setDoc, updateDoc, where, writeBatch, type DocumentData,
   type Firestore, type QuerySnapshot, type Unsubscribe,
 } from 'firebase/firestore';
 import { connectFunctionsEmulator, getFunctions, httpsCallable } from 'firebase/functions';
 import { appBaseUrl, config } from '../config';
 import type {
-  AppNotification, Family, Game, Invite, LibraryItem, Loan, LoanEvent, Member, Profile, Session,
+  AppNotification, Family, Game, GameRating, Invite, LibraryItem, Loan, LoanEvent, Member, Profile, Session,
 } from '../types';
 import type { Api, Table } from './types';
 
@@ -229,6 +229,13 @@ export function createFirebaseApi(): Api {
   });
   onAuthStateChanged(auth, (u) => writeSessionHint(toSession(u)));
 
+  const ratings = () => {
+    const f = fid();
+    return live<GameRating[]>(`f:${f}:ratings`, 'ratings', (next, fail) =>
+      onSnapshot(collection(db, `families/${f}/ratings`), (s) => next(rows<GameRating>(s)), fail),
+    );
+  };
+
   const myFamilies = () =>
     live<Family[]>(`u:${uid()}:families`, 'families', (next, fail) =>
       onSnapshot(query(collection(db, 'families'), where('member_ids', 'array-contains', uid())), (s) =>
@@ -420,6 +427,7 @@ export function createFirebaseApi(): Api {
           next(rows<LoanEvent>(s).sort((a, b) => a.created_at.localeCompare(b.created_at))), fail),
       );
     },
+    listRatings: ratings,
     listNotifications() {
       const me = uid();
       return live<AppNotification[]>(`u:${me}:notifications`, 'notifications', (next, fail) =>
@@ -445,6 +453,24 @@ export function createFirebaseApi(): Api {
     async setFavoriteGames(gameIds) {
       try {
         await updateDoc(doc(db, `families/${fid()}/members/${uid()}`), { favorite_game_ids: [...new Set(gameIds)].slice(0, 5) });
+      } catch (e) {
+        throw friendlyError(e);
+      }
+    },
+
+    async setGameOpinion(gameId, patch) {
+      const f = fid();
+      const me = uid();
+      const id = `${me}_${gameId}`;
+      const current = (await ratings()).find((r) => r.id === id);
+      const rating = patch.rating !== undefined ? patch.rating : (current?.rating ?? null);
+      const recommended = patch.recommended ?? current?.recommended ?? false;
+      if (rating !== null && !(Number.isInteger(rating) && rating >= 1 && rating <= 5)) throw new Error('Ratings go from 1 to 5 stars.');
+      const ref = doc(db, `families/${f}/ratings/${id}`);
+      try {
+        // Nothing left to say about the game: remove the record.
+        if (rating === null && !recommended) await deleteDoc(ref);
+        else await setDoc(ref, { user_id: me, game_id: gameId, rating, recommended, updated_at: new Date().toISOString() });
       } catch (e) {
         throw friendlyError(e);
       }

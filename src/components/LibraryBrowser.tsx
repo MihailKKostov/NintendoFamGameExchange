@@ -39,6 +39,7 @@ export function LibraryBrowser({
         hideOwner={!!fixedOwner}
         showNotMine={fixedOwner !== family.meId}
         resultCount={results.length}
+        totalCount={entries.length}
       />
       {results.length ? (
         <GameGrid entries={results} meId={family.meId} showOwners={!fixedOwner} />

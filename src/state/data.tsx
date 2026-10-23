@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { api, type Table } from '../api';
-import { buildEntries } from '../lib/library';
+import { buildEntries, summarizeRatings } from '../lib/library';
 import { useAuth } from './auth';
 import { useFamilies } from './families';
 import { useToast } from './toast';
@@ -14,6 +14,7 @@ export const qk = {
   loans: (fid: string) => ['fam', fid, 'loans'] as const,
   events: (fid: string, loanId: string) => ['fam', fid, 'loan_events', loanId] as const,
   familyInvites: (fid: string) => ['fam', fid, 'family_invites'] as const,
+  ratings: (fid: string) => ['fam', fid, 'ratings'] as const,
   notifications: (uid: string) => ['notifications', uid] as const,
 };
 
@@ -50,6 +51,10 @@ export const useLoans = () => {
   const fid = useFid();
   return useQuery({ queryKey: qk.loans(fid), queryFn: api.listLoans, enabled: !!fid });
 };
+export const useRatings = () => {
+  const fid = useFid();
+  return useQuery({ queryKey: qk.ratings(fid), queryFn: api.listRatings, enabled: !!fid });
+};
 export const useLoanEvents = (loanId: string) => {
   const fid = useFid();
   return useQuery({ queryKey: qk.events(fid, loanId), queryFn: () => api.listLoanEvents(loanId), enabled: !!fid });
@@ -73,6 +78,7 @@ export function useFamily() {
   const games = useGames();
   const library = useLibrary();
   const loans = useLoans();
+  const ratings = useRatings();
 
   return useMemo(() => {
     const all = members.data ?? [];
@@ -81,7 +87,8 @@ export function useFamily() {
     const gameList = games.data ?? [];
     const items = library.data ?? [];
     const loanList = loans.data ?? [];
-    const entries = buildEntries(gameList, items, loanList, profileById, meId);
+    const ratingByGame = summarizeRatings(ratings.data ?? [], new Set(active.map((m) => m.id)), meId);
+    const entries = buildEntries(gameList, items, loanList, profileById, meId, ratingByGame);
     const meMember = profileById.get(meId);
     return {
       meId,
@@ -97,10 +104,13 @@ export function useFamily() {
       loans: loanList,
       entries,
       entryByGame: new Map(entries.map((e) => [e.game.id, e])),
+      /** Ratings for any game in the family (also ones nobody owns right now). */
+      ratingByGame,
+      // Ratings aren't part of loading/error: the library works without them.
       loading: members.isLoading || games.isLoading || library.isLoading || loans.isLoading,
       error: members.error || games.error || library.error || loans.error,
     };
-  }, [meId, myProfile, members.data, games.data, library.data, loans.data, members.isLoading, games.isLoading,
+  }, [meId, myProfile, members.data, games.data, library.data, loans.data, ratings.data, members.isLoading, games.isLoading,
     library.isLoading, loans.isLoading, members.error, games.error, library.error, loans.error]);
 }
 

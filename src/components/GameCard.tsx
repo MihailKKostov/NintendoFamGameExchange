@@ -1,8 +1,10 @@
 import { Link } from 'react-router-dom';
+import { ThumbsUp } from 'lucide-react';
 import { yearOf } from '../lib/format';
 import type { GameEntry } from '../lib/library';
 import { AvatarStack } from './Avatar';
 import { GameIcon } from './GameIcon';
+import { RatingBadge } from './Rating';
 
 export const shortPlatform = (p: string | null) =>
   !p ? null : p.replace(/^Nintendo\s+/i, '').replace(/^iOS\s*\/\s*Android$/i, 'Mobile');
@@ -28,18 +30,29 @@ export function GameCard({ entry, meId, showOwners = true }: { entry: GameEntry;
   const year = yearOf(game.release_date);
   const platform = shortPlatform(game.platform);
   return (
-    <Link to={`/games/${game.id}`} className="game-card" aria-label={`${game.title} — ${status.text}`}>
+    <Link
+      to={`/games/${game.id}`}
+      className="game-card"
+      aria-label={`${game.title} — ${status.text}${entry.rating != null ? `, rated ${entry.rating.toFixed(1)} of 5` : ''}${entry.recommendedBy.length ? ', recommended' : ''}`}
+    >
       <span className="game-card-art selectable">
         <GameIcon game={game} size={200} />
         <span className={`card-status card-status-${status.tone}`}>
           <i />
           {status.text}
         </span>
+        {entry.recommendedBy.length > 0 && (
+          <span className="card-rec" title={`Recommended by ${entry.recommendedBy.length} ${entry.recommendedBy.length === 1 ? 'person' : 'people'}`}>
+            <ThumbsUp size={13} fill="currentColor" />
+            {entry.recommendedBy.length > 1 && entry.recommendedBy.length}
+          </span>
+        )}
       </span>
       <span className="game-card-body">
         <span className="game-card-title">{game.title}</span>
         <span className="game-card-meta">
-          {[game.genres[0], year].filter(Boolean).join(' · ') || platform}
+          <RatingBadge rating={entry.rating} count={entry.ratingCount} />
+          <span className="game-card-meta-text">{[game.genres[0], year].filter(Boolean).join(' · ') || platform}</span>
         </span>
         {showOwners && owners.length > 0 && (
           <span className="game-card-owners">

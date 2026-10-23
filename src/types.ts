@@ -149,6 +149,22 @@ export interface Member extends Profile {
   favorite_game_ids?: string[];
 }
 
+/** One person's opinion of one game in a family (doc id: `${user_id}_${game_id}`). */
+export interface GameRating {
+  id: string;
+  user_id: string;
+  game_id: string;
+  /** 1–5 stars, or null when they only recommended it. */
+  rating: number | null;
+  recommended: boolean;
+  updated_at: string;
+}
+
+export interface GameOpinionPatch {
+  rating?: number | null;
+  recommended?: boolean;
+}
+
 export interface Invite {
   id: string;
   family_id: string;

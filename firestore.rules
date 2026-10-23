@@ -79,6 +79,22 @@ service cloud.firestore {
           allow write: if false;
         }
       }
+      // Star ratings and recommendations: one record per person per game.
+      // Everyone in the family can see them; you can only write your own.
+      match /ratings/{ratingId} {
+        allow read: if isMember(fid);
+        allow create, update: if isMember(fid)
+          && request.resource.data.keys().hasOnly(['user_id', 'game_id', 'rating', 'recommended', 'updated_at'])
+          && request.resource.data.user_id == request.auth.uid
+          && request.resource.data.game_id is string
+          && ratingId == request.auth.uid + '_' + request.resource.data.game_id
+          && (request.resource.data.rating == null
+              || (request.resource.data.rating is int && request.resource.data.rating >= 1 && request.resource.data.rating <= 5))
+          && request.resource.data.recommended is bool
+          && request.resource.data.updated_at is string
+          && exists(/databases/$(database)/documents/families/$(fid)/games/$(request.resource.data.game_id));
+        allow delete: if isMember(fid) && resource.data.user_id == request.auth.uid;
+      }
       // Server-only data (nothing here is ever sent to browsers).
       match /private/{doc} {
         allow read, write: if false;
