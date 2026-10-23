@@ -4,15 +4,17 @@ import { api } from '../api';
 import { config } from '../config';
 import { screenshotDataUrl } from '../lib/image';
 import { recognizeWithOpenAi } from '../lib/openai';
+import { ratingSummaryFor } from '../lib/library';
 import { cleanTitle, hitToGame, matchTitle, type CatalogHit } from '../lib/nintendo';
 import { play } from '../lib/sounds';
 import { useAction, useFamily } from '../state/data';
 import { useToast } from '../state/toast';
-import type { DetectedGame, GameCondition, GameFormat, GameInput } from '../types';
+import type { DetectedGame, GameCondition, GameFormat, GameInput, GameOpinionPatch } from '../types';
 import { GameFacts } from './GameFacts';
 import { GameIcon } from './GameIcon';
 import { GameSearch } from './GameSearch';
 import { OpenAiKeyPanel, useOpenAiKey } from './OpenAiKeyPanel';
+import { RecommendButton, StarInput } from './Rating';
 import { Field, Modal, Segmented, Spinner } from './ui';
 
 type Tab = 'search' | 'scan' | 'manual';
@@ -82,7 +84,34 @@ interface ScanRow {
   detected: DetectedGame;
   candidates: CatalogHit[];
   choice: number; // index into candidates, -1 = skip
+  rating: number | null;
+  recommended: boolean;
 }
+
+/** Only what the person actually chose, so adding a copy never clears an earlier rating. */
+const opinionPatch = (rating: number | null, recommended: boolean): GameOpinionPatch | null => {
+  const patch: GameOpinionPatch = {};
+  if (rating != null) patch.rating = rating;
+  if (recommended) patch.recommended = true;
+  return Object.keys(patch).length ? patch : null;
+};
+
+/** Save ratings after adding; a failure here never undoes the add. Returns the last error, if any. */
+async function saveOpinions(list: { gameId: string; patch: GameOpinionPatch | null }[]): Promise<unknown | null> {
+  let failure: unknown = null;
+  for (const { gameId, patch } of list) {
+    if (!patch) continue;
+    try {
+      await api.setGameOpinion(gameId, patch);
+    } catch (e) {
+      failure = e;
+    }
+  }
+  return failure;
+}
+
+const opinionFailed = (e: unknown) =>
+  `Added — but your rating couldn’t be saved${e instanceof Error && e.message ? ` (${e.message})` : ''}. You can rate it from the game’s page.`;
 
 /** Demo mode without a key: pretend we recognised a few games. */
 async function simulatedScan(): Promise<DetectedGame[]> {
@@ -150,7 +179,7 @@ function ScanTab({ onDone }: { onDone: () => void }) {
       const matched = await Promise.all(
         detected.map(async (d) => {
           const candidates = await matchTitle(d.title, d.platform).catch(() => []);
-          return { detected: d, candidates, choice: candidates.length ? 0 : -1 };
+          return { detected: d, candidates, choice: candidates.length ? 0 : -1, rating: null, recommended: false };
         }),
       );
       setRows(matched);
@@ -165,14 +194,24 @@ function ScanTab({ onDone }: { onDone: () => void }) {
   const chosen = rows.filter((r) => r.choice >= 0);
 
   const addAll = async () => {
+    let failure: unknown = null;
     const res = await run(
       async () => {
-        for (const r of chosen) await api.addToLibrary(hitToGame(r.candidates[r.choice]), { format });
+        const added: { gameId: string; patch: GameOpinionPatch | null }[] = [];
+        for (const r of chosen) {
+          const { gameId } = await api.addToLibrary(hitToGame(r.candidates[r.choice]), { format });
+          added.push({ gameId, patch: opinionPatch(r.rating, r.recommended) });
+        }
+        failure = await saveOpinions(added);
       },
       { success: `Added ${chosen.length} game${chosen.length === 1 ? '' : 's'} to your library!` },
     );
-    if (res.ok) onDone();
+    if (res.ok) {
+      if (failure) toast.error(opinionFailed(failure));
+      onDone();
+    }
   };
+  const setRow = (idx: number, patch: Partial<ScanRow>) => setRows((rs) => rs.map((x, i) => (i === idx ? { ...x, ...patch } : x)));
 
   if (phase === 'results') {
     return (
@@ -184,7 +223,9 @@ function ScanTab({ onDone }: { onDone: () => void }) {
               {rows.length ? `Found ${rows.length} game${rows.length === 1 ? '' : 's'}` : 'No games found'}
             </h3>
             <p className="muted small">
-              {rows.length ? 'Check the matches, untick anything that’s wrong, then add them.' : 'Try a clearer screenshot, or search by name instead.'}
+              {rows.length
+                ? 'Check the matches, untick anything that’s wrong, rate the ones you’ve played if you like, then add them.'
+                : 'Try a clearer screenshot, or search by name instead.'}
             </p>
           </div>
         </div>
@@ -231,6 +272,12 @@ function ScanTab({ onDone }: { onDone: () => void }) {
                     {!r.candidates.length && ' · not found in the eShop'}
                     {owned && ' · already in your library'}
                   </span>
+                  {hit && (
+                    <div className="scan-row-opinion">
+                      <StarInput small label={`Rate ${cleanTitle(hit.title)}`} value={r.rating} onChange={(v) => setRow(idx, { rating: v })} />
+                      <RecommendButton small on={r.recommended} onChange={(v) => setRow(idx, { recommended: v })} />
+                    </div>
+                  )}
                 </div>
               </li>
             );
@@ -465,6 +512,22 @@ export function AddGameDialog({ open, onClose, initialTab = 'search' }: { open: 
   const [format, setFormat] = useState<GameFormat>('physical');
   const [condition, setCondition] = useState<GameCondition | ''>('good');
   const [notes, setNotes] = useState('');
+  const [rating, setRating] = useState<number | null>(null);
+  const [recommended, setRecommended] = useState(false);
+  const [opinionTouched, setOpinionTouched] = useState(false);
+  const toast = useToast();
+
+  // Adding another copy of a game you've already rated: start from your rating.
+  const familyGame = picked?.nsuid ? family.games.find((g) => g.nsuid === picked.nsuid) : undefined;
+  const existingOpinion = familyGame
+    ? ratingSummaryFor(family.ratingByGame, familyGame.id).opinions.find((o) => o.user_id === family.meId)
+    : undefined;
+  useEffect(() => {
+    setRating(existingOpinion?.rating ?? null);
+    setRecommended(!!existingOpinion?.recommended);
+    setOpinionTouched(false);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [picked]);
 
   useEffect(() => {
     if (open) {
@@ -483,11 +546,19 @@ export function AddGameDialog({ open, onClose, initialTab = 'search' }: { open: 
 
   const add = async () => {
     if (!picked) return;
+    let failure: unknown = null;
     const res = await run(
-      () => api.addToLibrary(picked, { format, condition: format === 'physical' ? condition || null : null, notes }),
+      async () => {
+        const { gameId } = await api.addToLibrary(picked, { format, condition: format === 'physical' ? condition || null : null, notes });
+        // Only touch your rating if you changed it here (both fields, so clearing works too).
+        if (opinionTouched) failure = await saveOpinions([{ gameId, patch: { rating, recommended } }]);
+      },
       { success: `${picked.title} was added to your library!` },
     );
-    if (res.ok) onClose();
+    if (res.ok) {
+      if (failure) toast.error(opinionFailed(failure));
+      onClose();
+    }
   };
 
   return (
@@ -503,6 +574,23 @@ export function AddGameDialog({ open, onClose, initialTab = 'search' }: { open: 
           </div>
           {alreadyOwned && <p className="notice notice-amber">You already have this game in your library — this will add a second copy.</p>}
           <CopyOptions format={format} setFormat={setFormat} condition={condition} setCondition={setCondition} notes={notes} setNotes={setNotes} />
+          <div className="add-opinion">
+            <span className="field-label">Your rating <span className="muted small">— optional</span></span>
+            <StarInput
+              value={rating}
+              onChange={(v) => {
+                setRating(v);
+                setOpinionTouched(true);
+              }}
+            />
+            <RecommendButton
+              on={recommended}
+              onChange={(v) => {
+                setRecommended(v);
+                setOpinionTouched(true);
+              }}
+            />
+          </div>
           <div className="row gap end wrap">
             <button type="button" className="btn btn-secondary" onClick={() => setPicked(null)}>
               Back

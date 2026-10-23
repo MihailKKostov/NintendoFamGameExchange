@@ -43,12 +43,14 @@ export function RatingBadge({ rating, count }: { rating: number | null; count?: 
 const WORDS = ['', 'Not for me', 'It’s OK', 'Good', 'Great', 'Loved it!'];
 
 /** Tap a star to rate; tap your current rating again to clear it. */
-export function StarInput({ value, onChange, disabled }: { value: number | null; onChange: (v: number | null) => void; disabled?: boolean }) {
+export function StarInput({
+  value, onChange, disabled, small = false, label = 'Your rating',
+}: { value: number | null; onChange: (v: number | null) => void; disabled?: boolean; small?: boolean; label?: string }) {
   const [hover, setHover] = useState<number | null>(null);
   const shown = hover ?? value ?? 0;
   return (
-    <div className="star-input-wrap">
-      <div className="star-input" role="radiogroup" aria-label="Your rating" onPointerLeave={() => setHover(null)}>
+    <div className={`star-input-wrap${small ? ' small' : ''}`}>
+      <div className="star-input" role="radiogroup" aria-label={label} onPointerLeave={() => setHover(null)}>
         {[1, 2, 3, 4, 5].map((n) => (
           <button
             key={n}
@@ -64,29 +66,33 @@ export function StarInput({ value, onChange, disabled }: { value: number | null;
               onChange(value === n ? null : n);
             }}
           >
-            <Star size={30} fill="currentColor" strokeWidth={0} />
+            <Star size={small ? 20 : 30} fill="currentColor" strokeWidth={0} />
           </button>
         ))}
       </div>
-      <span className="star-input-word">{shown ? WORDS[shown] : 'Tap to rate'}</span>
+      {!small && <span className="star-input-word">{shown ? WORDS[shown] : 'Tap to rate'}</span>}
     </div>
   );
 }
 
-export function RecommendButton({ on, onChange, disabled }: { on: boolean; onChange: (v: boolean) => void; disabled?: boolean }) {
+export function RecommendButton({
+  on, onChange, disabled, small = false,
+}: { on: boolean; onChange: (v: boolean) => void; disabled?: boolean; small?: boolean }) {
   return (
     <button
       type="button"
-      className={`recommend-btn${on ? ' on' : ''}`}
+      className={`recommend-btn${on ? ' on' : ''}${small ? ' small' : ''}`}
       aria-pressed={on}
+      aria-label={small ? 'Recommend' : undefined}
+      title={small ? (on ? 'You recommend this' : 'Recommend') : undefined}
       disabled={disabled}
       onClick={() => {
         play(on ? 'back' : 'toggle');
         onChange(!on);
       }}
     >
-      <ThumbsUp size={18} fill={on ? 'currentColor' : 'none'} />
-      {on ? 'You recommend this' : 'Recommend'}
+      <ThumbsUp size={small ? 16 : 18} fill={on ? 'currentColor' : 'none'} />
+      {!small && (on ? 'You recommend this' : 'Recommend')}
     </button>
   );
 }

@@ -70,7 +70,8 @@ export interface Api {
   /** Everyone's star ratings and recommendations in the current family. */
   listRatings(): Promise<GameRating[]>;
 
-  addToLibrary(game: GameInput | { id: string }, opts: AddToLibraryOptions): Promise<string>;
+  /** Add a copy you own; returns the new copy's id and the family game it belongs to. */
+  addToLibrary(game: GameInput | { id: string }, opts: AddToLibraryOptions): Promise<{ itemId: string; gameId: string }>;
   updateLibraryItem(id: string, patch: LibraryItemPatch): Promise<void>;
   removeLibraryItem(id: string): Promise<void>;
   /** Pick up to 5 of your games (current family) to show on your profile. */
