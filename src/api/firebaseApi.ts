@@ -440,8 +440,8 @@ export function createFirebaseApi(): Api {
     },
 
     addToLibrary: (game, opts) =>
-      famCall<{ itemId: string }>('addToLibrary', { game, format: opts.format, condition: opts.condition ?? null, notes: opts.notes ?? null })
-        .then((r) => r.itemId),
+      famCall<{ itemId: string; gameId: string }>('addToLibrary', { game, format: opts.format, condition: opts.condition ?? null, notes: opts.notes ?? null })
+        .then((r) => ({ itemId: r.itemId, gameId: r.gameId })),
     async updateLibraryItem(id, patch) {
       try {
         await updateDoc(doc(db, `families/${fid()}/items/${id}`), patch);

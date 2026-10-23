@@ -535,7 +535,7 @@ export function createDemoApi(): Api {
           id, family_id: f.id, owner_id: owner, game_id: gameId, format: opts.format, condition: opts.condition ?? null,
           notes: opts.notes?.trim() || null, lendable: true, created_at: now(),
         });
-        return id;
+        return { itemId: id, gameId };
       }, 'games', 'library_items'),
     updateLibraryItem: (id, patch) =>
       run(() => {

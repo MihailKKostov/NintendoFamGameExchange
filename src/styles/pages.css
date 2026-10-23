@@ -3205,3 +3205,35 @@
   font-weight: 800;
   flex: none;
 }
+.star-input-wrap.small .star-input button {
+  width: 30px;
+  height: 30px;
+}
+.recommend-btn.small {
+  min-height: 32px;
+  width: 32px;
+  padding: 0;
+  justify-content: center;
+}
+.add-opinion {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 16px;
+  margin: 4px 0 16px;
+  padding: 12px 16px;
+  border-radius: var(--radius);
+  background: var(--surface-2);
+}
+.add-opinion .field-label {
+  flex-basis: 100%;
+}
+.scan-row-opinion {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 4px;
+}
+.scan-row.skipped .scan-row-opinion {
+  display: none;
+}
