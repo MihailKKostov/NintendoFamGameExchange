@@ -5,8 +5,8 @@
  * the Cloud Functions in functions/src.
  */
 import type {
-  AppNotification, Family, Game, GameInput, Invite, LibraryItem, Loan, LoanEvent, LoanEventKind, Member, Profile,
-  Role, Session,
+  AppNotification, Family, Game, GameInput, GameRating, Invite, LibraryItem, Loan, LoanEvent, LoanEventKind, Member,
+  Profile, Role, Session,
 } from '../types';
 import seedGames from './demoSeed.json';
 import type { Api, Table } from './types';
@@ -27,6 +27,7 @@ interface DemoState {
   events: Scoped<LoanEvent>[];
   notifications: (AppNotification & { user_id: string })[];
   invites: Invite[];
+  ratings: Scoped<GameRating>[];
 }
 
 const uuid = () =>
@@ -160,7 +161,24 @@ function seed(): DemoState {
     { id: 'inv-grandpa', family_id: R, family_name: 'The Rivers Family', family_emoji: '🏠', email: 'grandpa@demo.family', role: 'member', invited_by: 'p-maya', invited_by_name: 'Mom', status: 'pending', created_at: daysAgo(2) },
   ];
 
-  return { users, families, members, games, library, loans, events, notifications, invites };
+  return { users, families, members, games, library, loans, events, notifications, invites, ratings: seedRatings({ games, members }) };
+}
+
+/** Sample star ratings and recommendations so the demo libraries feel lived in. */
+function seedRatings(state: Pick<DemoState, 'games' | 'members'>): Scoped<GameRating>[] {
+  const out: Scoped<GameRating>[] = [];
+  state.games.forEach((g, gi) => {
+    state.members.filter((m) => m.family_id === g.family_id).forEach((m, mi) => {
+      if ((gi * 7 + mi * 3) % 4 === 0) return; // not everyone has played everything
+      const rating = (gi + mi) % 9 === 0 ? 2 : 3 + ((gi + mi * 2) % 3);
+      const recommended = rating === 5 && (gi + mi) % 2 === 0;
+      out.push({
+        id: `${m.id}_${g.id}`, family_id: g.family_id, user_id: m.id, game_id: g.id, rating, recommended,
+        updated_at: daysAgo(((gi * 3 + mi) % 20) + 1),
+      });
+    });
+  });
+  return out;
 }
 
 const strip = <T extends object>(x: T) => {
@@ -175,6 +193,8 @@ export function createDemoApi(): Api {
   try {
     state = JSON.parse(localStorage.getItem(STORE_KEY) ?? '') as DemoState;
     if (!state?.families) throw new Error('empty');
+    // Demo data saved before ratings existed.
+    if (!state.ratings) state.ratings = seedRatings(state);
   } catch {
     state = seed();
     try {
@@ -187,7 +207,7 @@ export function createDemoApi(): Api {
   let familyId: string | null = null;
   const listeners = new Set<(t: Table) => void>();
   const authListeners = new Set<(s: Session | null) => void>();
-  const ALL: Table[] = ['me', 'families', 'my_invites', 'notifications', 'members', 'games', 'library_items', 'loans', 'loan_events', 'family_invites'];
+  const ALL: Table[] = ['me', 'families', 'my_invites', 'notifications', 'members', 'games', 'library_items', 'loans', 'loan_events', 'family_invites', 'ratings'];
 
   const save = (...tables: Table[]) => {
     try {
@@ -488,6 +508,8 @@ export function createDemoApi(): Api {
     listLoans: () => delay((inFamily(state.loans) as Loan[]).sort((a, b) => b.created_at.localeCompare(a.created_at))),
     listLoanEvents: (loanId) =>
       delay((inFamily(state.events) as LoanEvent[]).filter((e) => e.loan_id === loanId).sort((a, b) => a.created_at.localeCompare(b.created_at))),
+    // (Not inFamily(): that also strips user_id, which ratings need.)
+    listRatings: () => delay(state.ratings.filter((r) => r.family_id === fam().id).map(({ family_id: _f, ...r }) => (void _f, r)) as GameRating[]),
     listNotifications() {
       const s = getSession();
       return delay(s ? state.notifications.filter((n) => n.user_id === s.userId).slice(0, 60).map(strip) as AppNotification[] : []);
@@ -541,6 +563,21 @@ export function createDemoApi(): Api {
         const m = state.members.find((x) => x.family_id === f.id && x.id === me().id);
         if (m) m.favorite_game_ids = [...new Set(gameIds)].slice(0, 5);
       }, 'members'),
+    setGameOpinion: (gameId, patch) =>
+      run(() => {
+        const f = fam();
+        const uid = me().id;
+        if (!state.games.some((g) => g.id === gameId && g.family_id === f.id)) throw new Error('That game is not in the family library.');
+        const id = `${uid}_${gameId}`;
+        const current = state.ratings.find((r) => r.id === id && r.family_id === f.id);
+        const rating = patch.rating !== undefined ? patch.rating : (current?.rating ?? null);
+        const recommended = patch.recommended ?? current?.recommended ?? false;
+        if (rating !== null && !(Number.isInteger(rating) && rating >= 1 && rating <= 5)) throw new Error('Ratings go from 1 to 5 stars.');
+        state.ratings = state.ratings.filter((r) => !(r.id === id && r.family_id === f.id));
+        if (rating !== null || recommended) {
+          state.ratings.push({ id, family_id: f.id, user_id: uid, game_id: gameId, rating, recommended, updated_at: now() });
+        }
+      }, 'ratings'),
     requestLoan: (itemId, message) =>
       run(() => {
         const f = fam();

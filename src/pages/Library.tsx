@@ -10,7 +10,7 @@ export function Library() {
   const family = useFamily();
   const [adding, setAdding] = useState<null | 'search' | 'scan'>(null);
   const mine = useMemo(
-    () => buildEntries(family.games, family.items.filter((i) => i.owner_id === family.meId), family.loans, family.profileById, family.meId),
+    () => buildEntries(family.games, family.items.filter((i) => i.owner_id === family.meId), family.loans, family.profileById, family.meId, family.ratingByGame),
     [family],
   );
   const lent = family.loans.filter((l) => l.lender_id === family.meId && l.status === 'active').length;

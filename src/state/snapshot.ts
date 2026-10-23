@@ -10,7 +10,7 @@ import { useQueryClient, type QueryClient, type QueryKey } from '@tanstack/react
 
 const PREFIX = 'fge-snapshot:';
 const VERSION = 1;
-const FAMILY_TABLES = new Set(['members', 'games', 'library_items', 'loans']);
+const FAMILY_TABLES = new Set(['members', 'games', 'library_items', 'loans', 'ratings']);
 
 interface Saved {
   v: number;

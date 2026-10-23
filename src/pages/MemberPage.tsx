@@ -17,7 +17,7 @@ export function MemberPage() {
   const toast = useToast();
   const person = family.profileById.get(memberId);
   const entries = useMemo(
-    () => buildEntries(family.games, family.items.filter((i) => i.owner_id === memberId), family.loans, family.profileById, family.meId),
+    () => buildEntries(family.games, family.items.filter((i) => i.owner_id === memberId), family.loans, family.profileById, family.meId, family.ratingByGame),
     [family, memberId],
   );
 

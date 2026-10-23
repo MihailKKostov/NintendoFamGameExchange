@@ -99,7 +99,7 @@ export function Field({
 }
 
 export function Modal({
-  open, onClose, title, children, footer, size = 'md', className = '',
+  open, onClose, title, children, footer, size = 'md', className = '', focusField = true,
 }: {
   open: boolean;
   onClose: () => void;
@@ -108,6 +108,8 @@ export function Modal({
   footer?: ReactNode;
   size?: 'sm' | 'md' | 'lg';
   className?: string;
+  /** Focus the first text field on open (off: focus the dialog and stay at the top). */
+  focusField?: boolean;
 }) {
   const panelRef = useRef<HTMLDivElement>(null);
   const titleId = useId();
@@ -141,8 +143,8 @@ export function Modal({
     document.addEventListener('keydown', onKey);
     document.body.classList.add('modal-open');
     requestAnimationFrame(() => {
-      const target = panelRef.current?.querySelector<HTMLElement>('[autofocus], input, textarea, select') ?? panelRef.current;
-      target?.focus();
+      const target = (focusField && panelRef.current?.querySelector<HTMLElement>('[autofocus], input, textarea, select')) || panelRef.current;
+      target?.focus(focusField ? undefined : { preventScroll: true });
     });
     return () => {
       document.removeEventListener('keydown', onKey);

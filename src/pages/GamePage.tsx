@@ -1,17 +1,18 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import { ArrowLeft, ExternalLink, Gift, Hand, Pencil, Plus, Tag } from 'lucide-react';
+import { ArrowLeft, ExternalLink, Gift, Hand, Pencil, Plus, Star, Tag, ThumbsUp } from 'lucide-react';
 import { api } from '../api';
 import { Avatar } from '../components/Avatar';
 import { GameFacts } from '../components/GameFacts';
 import { GameIcon } from '../components/GameIcon';
 import { conditionLabel, ItemDialog, LendDialog, RequestDialog } from '../components/LoanDialogs';
 import { CopyStatePill } from '../components/Status';
+import { formatRating, GameOpinions } from '../components/Rating';
 import { StoreGallery, StoreGallerySkeleton } from '../components/StoreGallery';
 import { EmptyState, PageLoader } from '../components/ui';
 import { displayName, dueLabel, formatDate } from '../lib/format';
-import { copyState, type CopyInfo } from '../lib/library';
+import { copyState, ratingSummaryFor, type CopyInfo } from '../lib/library';
 import { dekuDealsUrl, fetchStoreDetails } from '../lib/nintendo';
 import { useAction, useFamily } from '../state/data';
 import type { Game } from '../types';
@@ -125,6 +126,7 @@ export function GamePage() {
     refetchOnWindowFocus: false,
   });
   const basePrice = store.data?.basePrice;
+  const opinions = ratingSummaryFor(family.ratingByGame, gameId);
 
   if (family.loading) return <PageLoader />;
   if (!game) {
@@ -162,10 +164,25 @@ export function GamePage() {
             <p className="game-hero-sub">
               {[game.publisher, game.release_date?.slice(0, 4)].filter(Boolean).join(' · ')}
             </p>
-            {basePrice != null && (
-              <span className="price-chip" title="Regular price on the US Nintendo eShop">
-                <Tag size={15} /> {usd.format(basePrice)}
-              </span>
+            {(basePrice != null || opinions.rating != null || opinions.recommendedBy.length > 0) && (
+              <div className="row gap-s wrap">
+                {opinions.rating != null && (
+                  <span className="price-chip rating-chip" title={`Family rating from ${opinions.ratingCount} ${opinions.ratingCount === 1 ? 'person' : 'people'}`}>
+                    <Star size={15} fill="currentColor" strokeWidth={0} /> {formatRating(opinions.rating)}
+                    <span className="chip-sub">({opinions.ratingCount})</span>
+                  </span>
+                )}
+                {opinions.recommendedBy.length > 0 && (
+                  <span className="price-chip" title="Recommended by family members">
+                    <ThumbsUp size={15} fill="currentColor" /> {opinions.recommendedBy.length} recommend{opinions.recommendedBy.length === 1 ? 's' : ''}
+                  </span>
+                )}
+                {basePrice != null && (
+                  <span className="price-chip" title="Regular price on the US Nintendo eShop">
+                    <Tag size={15} /> {usd.format(basePrice)}
+                  </span>
+                )}
+              </div>
             )}
             <div className="row gap wrap">
               {game.store_url && (
@@ -212,6 +229,8 @@ export function GamePage() {
           )}
         </section>
 
+        <div className="game-side">
+        <GameOpinions gameId={game.id} summary={opinions} />
         <section className="panel">
           <h2 className="panel-title">About this game</h2>
           <GameFacts
@@ -220,6 +239,7 @@ export function GamePage() {
           />
           {game.description && <p className="game-desc">{game.description}</p>}
         </section>
+        </div>
       </div>
     </div>
   );

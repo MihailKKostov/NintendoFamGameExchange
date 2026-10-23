@@ -1,12 +1,12 @@
 import type {
-  AppNotification, Family, FamilyInput, Game, GameCondition, GameFormat, GameInput, Invite, LibraryItem,
+  AppNotification, Family, FamilyInput, Game, GameCondition, GameFormat, GameInput, GameOpinionPatch, GameRating, Invite, LibraryItem,
   LibraryItemPatch, Loan, LoanEvent, Member, Profile, ProfilePatch, Role, Session,
 } from '../types';
 
 /** Things the UI can subscribe to; `onChange` tells which one changed. */
 export type Table =
   | 'me' | 'families' | 'my_invites' | 'notifications'
-  | 'members' | 'games' | 'library_items' | 'loans' | 'loan_events' | 'family_invites';
+  | 'members' | 'games' | 'library_items' | 'loans' | 'loan_events' | 'family_invites' | 'ratings';
 
 export interface AddToLibraryOptions {
   format: GameFormat;
@@ -67,12 +67,16 @@ export interface Api {
   listLoans(): Promise<Loan[]>;
   listLoanEvents(loanId: string): Promise<LoanEvent[]>;
   listNotifications(): Promise<AppNotification[]>;
+  /** Everyone's star ratings and recommendations in the current family. */
+  listRatings(): Promise<GameRating[]>;
 
   addToLibrary(game: GameInput | { id: string }, opts: AddToLibraryOptions): Promise<string>;
   updateLibraryItem(id: string, patch: LibraryItemPatch): Promise<void>;
   removeLibraryItem(id: string): Promise<void>;
   /** Pick up to 5 of your games (current family) to show on your profile. */
   setFavoriteGames(gameIds: string[]): Promise<void>;
+  /** Rate (1–5, null to clear) and/or recommend a game, as yourself, in the current family. */
+  setGameOpinion(gameId: string, patch: GameOpinionPatch): Promise<void>;
 
   requestLoan(itemId: string, message: string): Promise<string>;
   respondToLoan(loanId: string, accept: boolean, message: string, due: string | null): Promise<void>;
